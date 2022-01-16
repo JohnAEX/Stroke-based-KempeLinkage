@@ -1,4 +1,4 @@
-from pyslvs import VPoint, VJoint
+from pyslvs import VPoint, VJoint, VLink
 
 
 class Point:
@@ -7,12 +7,37 @@ class Point:
         self.y = y
 
 
-# todo: determine in what order points should be defined (BFS vs. DFS)
+# todo: determine what VLink would want for a 'collections.abc.Sequence[int]' to reverse the initialization
+def rhombus_link(points):
+    links = []
+    link_amount = 4
+    counter = 0
+    while counter < link_amount:
+        links.append(VLink("Link" + str(counter), "blue", list()))
+        counter += 1
+    # todo: how do we dynamically add and remove links ?
+    points[0].set_links(['ground', links[0].name, links[3].name])
+    points[3].set_links([links[3].name, links[2].name])
+    points[1].set_links([links[0].name, links[1].name])
+    points[2].set_links([links[1].name, links[2].name])
+
+    # for index, p in enumerate(points):
+    #     if index == len(points) - 1:
+    #         link = VLink("Link" + str(index), "orange", [p, 1])
+    #         # p.set_links([link.name])
+    #     else:
+    #         link = VLink("Link" + str(index), "orange", [])
+    #         # p.set_links([link.name])
+    #
+
+
 class Rhombus:
     points = []
+    links = []
 
     def __init__(self, p1, p2, p3, p4):
         self.points.extend([point_to_vpoint(p1), point_to_vpoint(p2), point_to_vpoint(p3), point_to_vpoint(p4)])
+        rhombus_link(self.points)
 
 
 # linkage will be different from Rhombus, linkage not implemented yet
@@ -27,7 +52,9 @@ class CounterParallelogram:
 def point_to_vpoint(point):
     # todo: implement linkage
     # todo: differentiate between R / P / RP Joints
-    return VPoint('', VJoint.R, 0, "blue", point.x, point.y)
+    point = VPoint('', VJoint.R, 0, "blue", point.x, point.y)
+    print()
+    return point
 
 
 def geometry_to_expressions(geo):
