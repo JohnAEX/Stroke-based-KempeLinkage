@@ -27,8 +27,9 @@ class WindowLayout:
                 sg.VSeperator(),
                 sg.Column([
                     [sg.Text("Please select the desired approximation technique.")],
-                    [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")]
-                ], size = (500, None))
+                    [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
+                    [sg.Canvas(size = (700, 400), background_color="white")]
+                ], size = (800, None))
             ]
         ]
 
@@ -50,7 +51,7 @@ class WindowLayout:
 
             col.append([sg.Frame(title=key, border_width=0, layout=method_layout, visible=False, key="_".join([method["short_name"], "FRAME"]))])
 
-        return sg.Column(col, size = (200, None))
+        return sg.Column(col, size = (400, None))
 
     def switch_parameter_group(self, window):
         for key, method in self.__methods.items():
