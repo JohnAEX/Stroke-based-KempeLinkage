@@ -1,15 +1,14 @@
 import PySimpleGUI as sg
 from window_layout import WindowLayout
 
-layout = WindowLayout()
+layout = WindowLayout().get_layout()
 
-sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(100, 50)).read()
+window = sg.Window(title="Kempe Linkage", layout=layout, margins=(20, 20))
 
 while True:
     event, values = window.read()
-    # End program if user closes window or
-    # presses the OK button
-    if event == "OK" or event == sg.WIN_CLOSED:
+    if event == "Exit" or event == sg.WIN_CLOSED:
         break
+    print(event)
 
 window.close()
