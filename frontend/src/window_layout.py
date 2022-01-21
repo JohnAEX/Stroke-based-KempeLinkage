@@ -28,7 +28,7 @@ class WindowLayout:
                 sg.Column([
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
-                    [sg.Canvas(size = (700, 400), background_color="white")]
+                    [sg.Canvas(size = (700, 400), background_color="white", key="CANVAS")]
                 ], size = (800, None))
             ]
         ]
