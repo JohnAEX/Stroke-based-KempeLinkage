@@ -1,15 +1,17 @@
 import PySimpleGUI as sg
+import math
 from window_layout import WindowLayout
 
 STROKE_WIDTH = 2
+POINT_DISTANCE_THRESHOLD = 20
 points = []
 def paint(event):
     python_green = "#476042"
     w = window["CANVAS"].tk_canvas
-    x1, y1 = ( event.x - STROKE_WIDTH ), ( event.y - STROKE_WIDTH )
-    x2, y2 = ( event.x + STROKE_WIDTH ), ( event.y + STROKE_WIDTH )
+    if len(points) > 0 and math.sqrt((event.x - points[-1][0])**2 + (event.y - points[-1][1])**2) < POINT_DISTANCE_THRESHOLD:
+        w.create_line(event.x,event.y,points[-1][0],points[-1][1], fill="blue", width=STROKE_WIDTH)
     points.append([event.x, event.y])
-    w.create_oval( x1, y1, x2, y2, fill = "blue" )
+    
 
 
 layout = WindowLayout()
