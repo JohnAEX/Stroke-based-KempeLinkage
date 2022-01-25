@@ -4,6 +4,9 @@ import PySimpleGUI as sg
 
 class WindowLayout:
 
+    CANVAS_SIZE_X = 700
+    CANVAS_SIZE_Y = 200
+
     __methods = {
         "Polynomial of Degree N": {
             "short_name": "POLYNOMIAL",
@@ -28,7 +31,7 @@ class WindowLayout:
                 sg.Column([
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
-                    [sg.Canvas(size = (700, 400), background_color="white", key="CANVAS")]
+                    [sg.Canvas(size = (self.CANVAS_SIZE_X, self.CANVAS_SIZE_Y), background_color="white", key="CANVAS")]
                 ], size = (800, None))
             ]
         ]
