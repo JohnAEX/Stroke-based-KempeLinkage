@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
 import math
 from window_layout import WindowLayout
+from scipy.optimize import curve_fit as cf
+import numpy as np
 
 STROKE_WIDTH = 2
 POINT_DISTANCE_THRESHOLD = 40
@@ -18,6 +20,29 @@ def init_canvas(paint, layout, window):
     w.create_line(0, layout.CANVAS_SIZE_Y//2, layout.CANVAS_SIZE_X, layout.CANVAS_SIZE_Y//2)
     w.create_line(layout.CANVAS_SIZE_X//2, 0, layout.CANVAS_SIZE_X/2, layout.CANVAS_SIZE_Y)
 
+def func(x, a, b, c):
+    return a*x**2 + b*x + c
+
+def draw_shit():
+    xdata = []
+    ydata = []
+    for x,y in points:
+        xdata.append(x-layout.CANVAS_SIZE_X//2)
+        ydata.append((y-layout.CANVAS_SIZE_Y//2) * -1)
+
+    print(xdata)
+    print(ydata)
+    popt, pcov = cf(func, xdata, ydata)
+
+    points_n = []
+    for i in range(-layout.CANVAS_SIZE_X//2,layout.CANVAS_SIZE_X//2):
+        y = func(i, popt[0], popt[1], popt[2])
+        points_n.append([i+layout.CANVAS_SIZE_X//2, (y*-1) + layout.CANVAS_SIZE_Y//2])
+
+    w = window["CANVAS"].tk_canvas
+    for i in range(len(points_n)-2):
+        w.create_line(points_n[i][0], points_n[i][1], points_n[i+1][0], points_n[i+1][1], fill="purple", width=STROKE_WIDTH)
+
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
 init_canvas(paint, layout, window)
@@ -28,6 +53,9 @@ while True:
         break
     if event == "METHOD_SELECTION":
         layout.switch_parameter_group(window)
+    if event == "BUTTON":
+        draw_shit()
 
 window.close()
 print(points)
+

@@ -1,1 +1,2 @@
 PySimpleGUI>=4.55.1
+SciPy>=1.7.3
