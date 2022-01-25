@@ -1,6 +1,7 @@
-from argparse import ArgumentError
-from zoneinfo import reset_tzpath
 import PySimpleGUI as sg
+from numpy import polynomial
+
+from frontend.src.approximation_techniques.polynomial import PolynomialApproximation
 
 class WindowLayout:
 
@@ -12,7 +13,8 @@ class WindowLayout:
             "short_name": "POLYNOMIAL",
             "parameters": [
                 {"name": "N", "description_text": "n = ", "type": "free", "default": "2"}
-            ]
+            ],
+            "approximation_class": PolynomialApproximation
         },
         "Some other test method that is not implemented": {
             "short_name": "FOO",
