@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 from numpy import polynomial
 
-from frontend.src.approximation_techniques.polynomial import PolynomialApproximation
+from approximation_techniques.polynomial import PolynomialApproximation
 
 class WindowLayout:
 
@@ -64,3 +64,11 @@ class WindowLayout:
             window["_".join([method["short_name"], "FRAME"])].update(visible=False)
         method = self.__methods[window["METHOD_SELECTION"].get()]
         window["_".join([method["short_name"], "FRAME"])].update(visible=True)
+
+    def get_selected_method(self, window):
+        method = self.__methods[window["METHOD_SELECTION"].get()]
+        parameters = {}
+        for param in method["parameters"]:
+            parameters[param["name"]] = window["_".join([method["short_name"], param["name"]])].get()
+
+        return method, parameters

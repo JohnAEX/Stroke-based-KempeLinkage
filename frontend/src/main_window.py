@@ -20,15 +20,17 @@ def init_canvas(paint, layout, window):
     w.create_line(0, layout.CANVAS_SIZE_Y//2, layout.CANVAS_SIZE_X, layout.CANVAS_SIZE_Y//2)
     w.create_line(layout.CANVAS_SIZE_X//2, 0, layout.CANVAS_SIZE_X/2, layout.CANVAS_SIZE_Y)
 
-def func(x, a, b, c):
-    return a*x**2 + b*x + c
-
-def draw_shit():
+def get_xy_data(raw_points):
     xdata = []
     ydata = []
-    for x,y in points:
+    for x,y in raw_points:
         xdata.append(x-layout.CANVAS_SIZE_X//2)
         ydata.append((y-layout.CANVAS_SIZE_Y//2) * -1)
+
+    return xdata, ydata
+
+def draw_shit():
+
 
     print(xdata)
     print(ydata)
@@ -54,7 +56,10 @@ while True:
     if event == "METHOD_SELECTION":
         layout.switch_parameter_group(window)
     if event == "BUTTON":
-        draw_shit()
+        method, parameters = layout.get_selected_method(window)
+        approx = method["approximation_class"]()
+        xdata, ydata = get_xy_data(points)
+        approx.set_parameters_and_approximate(parameters, xdata, ydata)
 
 window.close()
 print(points)
