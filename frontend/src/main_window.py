@@ -28,10 +28,10 @@ def get_xy_data(raw_points):
 
     return xdata, ydata
 
-def draw_shit():
+def draw_approximated(func):
     points_n = []
     for i in range(-layout.CANVAS_SIZE_X//2,layout.CANVAS_SIZE_X//2):
-        y = func(i, popt[0], popt[1], popt[2])
+        y = func(i)
         points_n.append([i+layout.CANVAS_SIZE_X//2, (y*-1) + layout.CANVAS_SIZE_Y//2])
 
     w = window["CANVAS"].tk_canvas
@@ -53,6 +53,8 @@ while True:
         approx = method["approximation_class"]()
         xdata, ydata = get_xy_data(points)
         approx.set_parameters_and_approximate(parameters, xdata, ydata)
+        func = approx.get_approximated_function()
+        draw_approximated(func)
 
 window.close()
 print(points)

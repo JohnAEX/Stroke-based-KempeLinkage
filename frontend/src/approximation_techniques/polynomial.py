@@ -6,7 +6,6 @@ class PolynomialApproximation(BaseApproximation):
 
     def get_function(self, n):
         func =  f'def approx(x, {", ".join(["a" + str(i) for i in range(n)])}):\n  return {" + ".join(["a" + str(i) + ("*x**") + str(i) for i in range(n)])}'
-        print(func)
         f_code = compile(func, "<float>", "exec")
         f_func = FunctionType(f_code.co_consts[0], globals(), "approx")
 
@@ -22,6 +21,9 @@ class PolynomialApproximation(BaseApproximation):
         self.__popt = popt
 
     def get_approximated_function(self):
-        func = f'def get_approx_value(x):\n  return self.__funct(x, {", ".join(self.__popt)})'
+        n = len(self.__popt)
+        func =  f'def approx(x):\n  return {" + ".join([str(self.__popt[i]) + ("*x**") + str(i) for i in range(n)])}'
+        print(func)
         f_code = compile(func, "<float>", "exec")
+        f_func = FunctionType(f_code.co_consts[0], globals(), "approx")
         return FunctionType(f_code.co_consts[0], globals(), "get_approx_value")
