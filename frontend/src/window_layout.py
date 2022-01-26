@@ -34,7 +34,7 @@ class WindowLayout:
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
                     [sg.Canvas(size = (self.CANVAS_SIZE_X, self.CANVAS_SIZE_Y), background_color="white", key="CANVAS")],
-                    [sg.Button("Feuer frei", key="BUTTON")]
+                    [sg.Button("Feuer frei", key="BUTTON", visible=False)]
                 ], size = (800, 300))
             ]
         ]
@@ -64,6 +64,7 @@ class WindowLayout:
             window["_".join([method["short_name"], "FRAME"])].update(visible=False)
         method = self.__methods[window["METHOD_SELECTION"].get()]
         window["_".join([method["short_name"], "FRAME"])].update(visible=True)
+        window["BUTTON"].update(visible=True)
 
     def get_selected_method(self, window):
         method = self.__methods[window["METHOD_SELECTION"].get()]

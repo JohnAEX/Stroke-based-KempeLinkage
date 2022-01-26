@@ -1,7 +1,6 @@
 import PySimpleGUI as sg
 import math
 from window_layout import WindowLayout
-from scipy.optimize import curve_fit as cf
 import numpy as np
 
 STROKE_WIDTH = 2
@@ -30,12 +29,6 @@ def get_xy_data(raw_points):
     return xdata, ydata
 
 def draw_shit():
-
-
-    print(xdata)
-    print(ydata)
-    popt, pcov = cf(func, xdata, ydata)
-
     points_n = []
     for i in range(-layout.CANVAS_SIZE_X//2,layout.CANVAS_SIZE_X//2):
         y = func(i, popt[0], popt[1], popt[2])
