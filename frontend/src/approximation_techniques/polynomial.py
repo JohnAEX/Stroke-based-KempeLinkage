@@ -15,7 +15,7 @@ class PolynomialApproximation(BaseApproximation):
         return x*a
 
     def set_parameters_and_approximate(self, parameter_map, xdata, ydata):
-        n = int(parameter_map["N"])
+        n = int(parameter_map["N"]) + 1
         self.__func = self.get_function(n)
         popt, pcov = cf(self.__func, xdata, ydata)
         self.__popt = popt

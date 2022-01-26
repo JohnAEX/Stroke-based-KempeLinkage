@@ -7,7 +7,6 @@ STROKE_WIDTH = 2
 POINT_DISTANCE_THRESHOLD = 40
 points = []
 def paint(event):
-    python_green = "#476042"
     w = window["CANVAS"].tk_canvas
     if len(points) > 0 and math.sqrt((event.x - points[-1][0])**2 + (event.y - points[-1][1])**2) < POINT_DISTANCE_THRESHOLD:
         w.create_line(event.x,event.y,points[-1][0],points[-1][1], fill="blue", width=STROKE_WIDTH)
@@ -39,7 +38,7 @@ def draw_approximated(func):
         w.create_line(points_n[i][0], points_n[i][1], points_n[i+1][0], points_n[i+1][1], fill="purple", width=STROKE_WIDTH)
 
 def clear():
-    points = []
+    points.clear()
     window["CANVAS"].tk_canvas.delete('all')
     init_canvas()
 
@@ -64,5 +63,3 @@ while True:
         clear()
 
 window.close()
-print(points)
-
