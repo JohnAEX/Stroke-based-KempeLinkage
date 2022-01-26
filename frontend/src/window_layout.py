@@ -34,7 +34,7 @@ class WindowLayout:
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
                     [sg.Canvas(size = (self.CANVAS_SIZE_X, self.CANVAS_SIZE_Y), background_color="white", key="CANVAS")],
-                    [sg.Button("Feuer frei", key="BUTTON", visible=False)]
+                    [sg.Button("Approximate", key="BUTTON", visible=False), sg.Button("Clear", key="CLEAR")]
                 ], size = (800, 300))
             ]
         ]

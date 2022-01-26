@@ -13,7 +13,7 @@ def paint(event):
         w.create_line(event.x,event.y,points[-1][0],points[-1][1], fill="blue", width=STROKE_WIDTH)
     points.append([event.x, event.y])
 
-def init_canvas(paint, layout, window):
+def init_canvas():
     window["CANVAS"].tk_canvas.bind("<Button1-Motion>", paint)
     w = window["CANVAS"].tk_canvas
     w.create_line(0, layout.CANVAS_SIZE_Y//2, layout.CANVAS_SIZE_X, layout.CANVAS_SIZE_Y//2)
@@ -38,9 +38,14 @@ def draw_approximated(func):
     for i in range(len(points_n)-2):
         w.create_line(points_n[i][0], points_n[i][1], points_n[i+1][0], points_n[i+1][1], fill="purple", width=STROKE_WIDTH)
 
+def clear():
+    points = []
+    window["CANVAS"].tk_canvas.delete('all')
+    init_canvas()
+
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
-init_canvas(paint, layout, window)
+init_canvas()
 
 while True:
     event, values = window.read()
@@ -55,6 +60,8 @@ while True:
         approx.set_parameters_and_approximate(parameters, xdata, ydata)
         func = approx.get_approximated_function()
         draw_approximated(func)
+    if event == "CLEAR":
+        clear()
 
 window.close()
 print(points)
