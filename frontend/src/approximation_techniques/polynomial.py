@@ -1,6 +1,8 @@
 from approximation_techniques.base_approximation import BaseApproximation
 from scipy.optimize import curve_fit as cf
 from types import FunctionType
+import sympy as sy
+from sympy.simplify.fu import TR5, TR8, TR0
 
 class PolynomialApproximation(BaseApproximation):
 
@@ -27,3 +29,15 @@ class PolynomialApproximation(BaseApproximation):
         f_code = compile(func, "<float>", "exec")
         f_func = FunctionType(f_code.co_consts[0], globals(), "approx")
         return FunctionType(f_code.co_consts[0], globals(), "get_approx_value")
+
+    def get_sympy_expression(self):
+        alpha,beta,r,x,y = sy.symbols('a b r x y')
+        expr = 0
+        for i in range(len(self.__popt)):
+            expr += self.__popt[i]*x**i
+        expr -= y
+        expr = expr.subs(x, (r/2)*sy.cos(alpha) + (r/2)*sy.cos(beta))
+        expr = expr.subs(y, (r/2)*sy.sin(alpha) + (r/2)*sy.sin(beta))
+        result = (TR5(TR8(TR0(expr))).rewrite(sy.cos))
+
+        sy.pprint(result)

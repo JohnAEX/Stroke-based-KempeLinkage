@@ -34,7 +34,7 @@ class WindowLayout:
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
                     [sg.Canvas(size = (self.CANVAS_SIZE_X, self.CANVAS_SIZE_Y), background_color="white", key="CANVAS")],
-                    [sg.Button("Approximate", key="BUTTON", visible=False), sg.Button("Clear", key="CLEAR")]
+                    [sg.Button("Clear", key="CLEAR"), sg.Button("Approximate", key="BUTTON", visible=False), sg.Button("Export", key="EXPORT", visible=False)]
                 ], size = (800, 300))
             ]
         ]
@@ -73,3 +73,6 @@ class WindowLayout:
             parameters[param["name"]] = window["_".join([method["short_name"], param["name"]])].get()
 
         return method, parameters
+
+    def set_export_button(self, window, visible):
+        window["EXPORT"].update(visible=visible)
