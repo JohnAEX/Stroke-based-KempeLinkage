@@ -18,3 +18,8 @@ class BaseApproximation:
     @abstractmethod
     def get_approximated_function(self):
         pass
+
+    @abstractmethod
+    def get_sympy_expression(self):
+        pass
+    
