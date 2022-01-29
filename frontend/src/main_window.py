@@ -39,7 +39,7 @@ def draw_approximated(func):
         w.create_line(points_n[i][0], points_n[i][1], points_n[i+1][0], points_n[i+1][1], fill="purple", width=STROKE_WIDTH)
 
 def clear():
-    layout.set_export_button(window, False)
+    layout.set_export_button(window, True)
     points.clear()
     window["CANVAS"].tk_canvas.delete('all')
     init_canvas()
@@ -61,7 +61,7 @@ while True:
         approx.set_parameters_and_approximate(parameters, xdata, ydata)
         func = approx.get_approximated_function()
         draw_approximated(func)
-        layout.set_export_button(window, True)
+        layout.set_export_button(window, False)
     if event == "EXPORT":
         syfunc = approx.get_sympy_expression()
     if event == "CLEAR":

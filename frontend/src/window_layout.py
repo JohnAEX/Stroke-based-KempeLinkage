@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 from numpy import polynomial
+from urllib3 import disable_warnings
 
 from approximation_techniques.polynomial import PolynomialApproximation
 
@@ -34,7 +35,7 @@ class WindowLayout:
                     [sg.Text("Please select the desired approximation technique.")],
                     [sg.Combo(list(self.__methods.keys()), readonly=True, enable_events=True, key="METHOD_SELECTION")],
                     [sg.Canvas(size = (self.CANVAS_SIZE_X, self.CANVAS_SIZE_Y), background_color="white", key="CANVAS")],
-                    [sg.Button("Clear", key="CLEAR"), sg.Button("Approximate", key="BUTTON", visible=False), sg.Button("Export", key="EXPORT", visible=False)]
+                    [sg.Button("Clear", key="CLEAR"), sg.Button("Approximate", key="BUTTON", disabled=True), sg.Button("Export", key="EXPORT", disabled=True)]
                 ], size = (800, 300))
             ]
         ]
@@ -64,7 +65,7 @@ class WindowLayout:
             window["_".join([method["short_name"], "FRAME"])].update(visible=False)
         method = self.__methods[window["METHOD_SELECTION"].get()]
         window["_".join([method["short_name"], "FRAME"])].update(visible=True)
-        window["BUTTON"].update(visible=True)
+        window["BUTTON"].update(disabled=False)
 
     def get_selected_method(self, window):
         method = self.__methods[window["METHOD_SELECTION"].get()]
@@ -74,5 +75,5 @@ class WindowLayout:
 
         return method, parameters
 
-    def set_export_button(self, window, visible):
-        window["EXPORT"].update(visible=visible)
+    def set_export_button(self, window, disabled):
+        window["EXPORT"].update(disabled=disabled)
