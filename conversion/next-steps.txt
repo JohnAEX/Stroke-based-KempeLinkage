@@ -1,0 +1,13 @@
+Current next steps for conversion:
+[done] add multiplicator gadget
+[done] change util structure to a more class based approach (this probably should be done depending on size?)
+[done]: analyse the requirements for controlling alpha / beta of the rhombus for the output point --> hint: we are restricted in resolution based on 2R of the Rhombus
+[wip - needs bug fixing] add additor gadget
+todo: change point based system to input/output based system
+todo: allow interlinking of multiple gadgets (additor + multiplicator)
+todo: use output of frontend approximation to greate additor / subtractor gadgets
+todo: add translator gadget to move output point away from linkage construction
+todo: avoid impossible z-axis stacking for real-life construction (? maybe)
+
+Open questions:
+* determine if all movements required to reproduce the expected path can be done easily with revolutions
