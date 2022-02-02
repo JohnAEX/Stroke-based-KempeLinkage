@@ -1,5 +1,6 @@
 import random
 import string
+import linkage_geometry
 
 from pyslvs import VPoint, VJoint, VLink
 from enum import Enum
@@ -79,11 +80,22 @@ def geometries_to_expression(geos):
     return expression
 
 
+def global_to_expression():
+    global_points = linkage_geometry.get_global_points()
+    expression = "M["
+    for dp in global_points:
+        vp = global_points[dp].vPoint
+        expression += "\n" + vp.expr() + ","
+    expression += "\n]"
+    return expression
+
+
 def dp_to_expression(dps):
     local_expression = ""
+    global_points = linkage_geometry.get_global_points()
     for dp in dps:
-        p = dp['vpoint']
-        local_expression += "\n" + p.expr() + ","
+        vp = global_points[dp].vPoint
+        local_expression += "\n" + vp.expr() + ","
     return local_expression
 
 
@@ -94,7 +106,7 @@ def combine_link(*args):
         links = vpoint.links
         new_links = links + (new_link.name,)
         vpoint.set_links(new_links)
-# todo: delete previous sub-links that 2+ of the points to combine hat in common
+# todo: delete previous sub-links that 2+ of the points to combine had in common
 
 
 class Role(Enum):

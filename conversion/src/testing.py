@@ -30,7 +30,7 @@ def create_counterparallelogram_expression():
 def create_multiplicator_expression():
     multi = Multiplicator(p1, p2, p3, p4, p5, p6)
     print("--- Multiplicator [combined]---")
-    print(geometries_to_expression(multi.geos))
+    print(global_to_expression())
 
     # for debugging purposes:
     # print("--- Multiplicator [individual part 1]---")
@@ -71,7 +71,8 @@ M[
 
 # this generated a valid Mechanism-Expression that can be imported into PYSLVS through "Mechanism -> PASTE"
 if __name__ == '__main__':
-    create_rhombus_expression()
-    create_counterparallelogram_expression()
+    # create_rhombus_expression()
+    # create_counterparallelogram_expression()
     create_multiplicator_expression()
-    create_additor_expression()
+    # create_additor_expression()
+    # import_test(1000)
