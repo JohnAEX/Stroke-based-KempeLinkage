@@ -11,3 +11,6 @@ class PolynomialApproximation(BaseApproximation):
 
     def get_approximated_function(self):
         return y_is_x
+
+    def get_sympy_expression(self):
+        return None

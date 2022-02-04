@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import math
 from window_layout import WindowLayout
+from model_export.handler import function_exporter
 import sympy as sy
 from sympy.simplify.fu import TR5, TR8, TR0
 
@@ -64,6 +65,7 @@ while True:
         layout.set_export_button(window, False)
     if event == "EXPORT":
         syfunc = approx.get_sympy_expression()
+        exporter = function_exporter(syfunc)
     if event == "CLEAR":
         clear()
 
