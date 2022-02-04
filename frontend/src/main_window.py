@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import math
+from approximation_techniques.polynomial import PolynomialApproximation
 from window_layout import WindowLayout
 from model_export.handler import function_exporter
 import sympy as sy
@@ -44,6 +45,13 @@ def clear():
     points.clear()
     window["CANVAS"].tk_canvas.delete('all')
     init_canvas()
+
+# skip ui
+approx = PolynomialApproximation()
+approx.set_parameters_and_approximate({"N": 3}, [1,2,3,4,5,6,7], [4,8,10,12,14,15,16])
+syfunc = approx.get_sympy_expression()
+exporter = function_exporter(syfunc)
+quit()
 
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
