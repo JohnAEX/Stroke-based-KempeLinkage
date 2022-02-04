@@ -50,8 +50,8 @@ def clear():
 approx = PolynomialApproximation()
 approx.set_parameters_and_approximate({"N": 3}, [1,2,3,4,5,6,7], [4,8,10,12,14,15,16])
 syfunc = approx.get_sympy_expression()
-exporter = function_exporter(syfunc)
-quit()
+#exporter = function_exporter(syfunc)
+#quit()
 
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
