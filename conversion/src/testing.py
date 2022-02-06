@@ -73,6 +73,6 @@ M[
 if __name__ == '__main__':
     # create_rhombus_expression()
     # create_counterparallelogram_expression()
-    create_multiplicator_expression()
-    # create_additor_expression()
+    # create_multiplicator_expression()
+    create_additor_expression()
     # import_test(1000)

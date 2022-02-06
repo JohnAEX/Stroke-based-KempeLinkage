@@ -88,11 +88,12 @@ class Additor:
 
     def __init__(self, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11):
         self.geos = []
+        create_new_points(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
         multi1 = Multiplicator(p1, p2, p3, p4, p5, p6)
         self.geos.append(multi1)
         multi2 = Multiplicator(p1, p7, p8, p9, p10, p11)
         self.geos.append(multi2)
-        combine_link(self.geos[0].geos[0].points[0], self.geos[0].geos[0].points[2], self.geos[1].geos[0].points[2])
+        link(p1, p3, p8)
 
 
 def create_new_points(*args):
