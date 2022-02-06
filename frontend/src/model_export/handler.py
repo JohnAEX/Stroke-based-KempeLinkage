@@ -1,5 +1,5 @@
 import sympy as sy
-from model import Model
+from model_export.model import Model
 
 class function_exporter:
 
@@ -10,7 +10,7 @@ class function_exporter:
     def __prepare_function(self) -> None:
         alpha,beta,r,x,y = sy.symbols('a b r x y')
         self.__function = self.__function.subs(r, 1)
-        print(self.__function
+        print(self.__function)
         model = Model()
         for key, value in self.__function.as_coefficients_dict().items():
             print(key.args, value)

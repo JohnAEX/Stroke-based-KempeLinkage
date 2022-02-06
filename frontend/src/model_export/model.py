@@ -1,13 +1,12 @@
-from frontend.src.model_export.geometry import Geometry
-from linkage import Linkage
-from node import Node
-from geometry import Geometry
+from model_export.geometry import Geometry
+from model_export.linkage import Linkage
+from model_export.node import Node
+from model_export.geometry import Geometry
 import math
 
 
 class Model:
 
-    
     def __init__(self, scale_factor=256) -> None:
         self.__scale_factor = scale_factor
         self.__all_geometry: list(Geometry) = []

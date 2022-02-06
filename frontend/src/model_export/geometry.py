@@ -1,6 +1,6 @@
 class Geometry:
 
-    def __init__(self, tags: list(str) = []) -> None:
+    def __init__(self, tags: list[str] = []) -> None:
         self.__tags = tags
 
     def has_tag(self, tag: str) -> bool:

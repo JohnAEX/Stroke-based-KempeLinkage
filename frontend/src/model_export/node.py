@@ -1,11 +1,9 @@
-from pickle import TUPLE2
-from geometry import Geometry
-from linkage import Linkage
+from model_export.geometry import Geometry
 
 class Node(Geometry):
     
-    def __init__(self, tags: list(str), is_fixed: bool, location: TUPLE2[float, float]=None) -> None:
-        super(tags)
+    def __init__(self, tags: list[str], is_fixed: bool, location: tuple[float, float]=None) -> None:
+        super().__init__(tags)
         
         self.__linkages = []
         if location is not None:
@@ -14,8 +12,8 @@ class Node(Geometry):
 
         self.__is_fixed = is_fixed
 
-    def add_linkage(self, linkage: Linkage) -> None:
+    def add_linkage(self, linkage) -> None:
         self.__linkages.append(linkage)
     
-    def get_linkages(self) -> list(Linkage):
+    def get_linkages(self):
         return self.__linkages
