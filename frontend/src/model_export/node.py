@@ -1,15 +1,19 @@
-from frontend.src.model_export.geometry import geometry
-from linkage import linkage
+from pickle import TUPLE2
+from geometry import Geometry
+from linkage import Linkage
 
-class node(geometry):
+class Node(Geometry):
     
-    def __init__(self, tags: list(str)) -> None:
+    def __init__(self, tags: list(str), location: TUPLE2[float, float]=None) -> None:
         super(tags)
         
         self.__linkages = []
+        if location is not None:
+            self.__x = location[0]
+            self.__y = location[1]
 
-    def add_linkage(self, linkage: linkage) -> None:
+    def add_linkage(self, linkage: Linkage) -> None:
         self.__linkages.append(linkage)
     
-    def get_linkages(self) -> list(linkage):
+    def get_linkages(self) -> list(Linkage):
         return self.__linkages

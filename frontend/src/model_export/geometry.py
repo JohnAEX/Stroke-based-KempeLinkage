@@ -1,4 +1,4 @@
-class geometry:
+class Geometry:
 
     def __init__(self, tags: list(str) = []) -> None:
         self.__tags = tags
