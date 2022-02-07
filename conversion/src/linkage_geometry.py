@@ -91,9 +91,9 @@ class Additor:
         create_new_points(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
         multi1 = Multiplicator(p1, p2, p3, p4, p5, p6)
         self.geos.append(multi1)
-        multi2 = Multiplicator(p1, p7, p8, p9, p10, p11)
+        multi2 = Multiplicator(p1, p8, p7, p9, p10, p11)
         self.geos.append(multi2)
-        link(p1, p3, p8)
+        # link(p1, p3, p11)
 
 
 def create_new_points(*args):
