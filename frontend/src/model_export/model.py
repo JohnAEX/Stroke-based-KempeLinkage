@@ -49,10 +49,10 @@ class Model:
         self.__all_geometry.append(Linkage(["rhombus"], c, d, self.__scale_factor))
 
     def __add_initial_counterparallelograms(self):
-        self.__calculate_position_of_lower_point()
+        x,y = self.__calculate_position_of_lower_point()
         for (angle, x_factor, rhombus_node) in [("alpha", 1, self.__alpha_node), ("beta", -1, self.__beta_node)]:
             outer = Node([angle], True, (2 * self.__scale_factor * x_factor, 0))
-            lower = Node([angle], False, ((2 * self.__scale_factor - self.__pythagoras(self.__scale_factor)) * x_factor, -self.__pythagoras(self.__scale_factor)))
+            lower = Node([angle], False, ((2 * self.__scale_factor - x) * x_factor, -y))
             self.__all_geometry.append(Linkage([angle], self.__origin, outer, self.__scale_factor*2, True))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
@@ -70,6 +70,7 @@ class Model:
         distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
         print(handle_node.get_xy())
         print(distant_node.get_xy())
+        # berechne koordinaten des neuen punktes
         # füge punkt auf langer Kante hinzu
         # füge neuen punkt hinzu
         # zeichne 2 neue linkages
