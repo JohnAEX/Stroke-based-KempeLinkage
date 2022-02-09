@@ -34,6 +34,14 @@ class Model:
         self.__beta_node = c
         return a,b,c,d
 
+    def __calculate_position_of_lower_point(self) -> tuple[float, float]:
+        # I bet, this could be simplified tremendously
+        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(1/4 * math.pi))
+        upper_angle = math.pi - math.asin(math.sin(1/4*math.pi)*2*self.__scale_factor/length_a) 
+        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - 1/4 * math.pi - upper_angle) )
+        y_angle = 1/2 * math.pi - x_angle
+        return self.__scale_factor * math.sin(x_angle), self.__scale_factor * math.sin(y_angle)
+
     def __make_rhombus_linkages(self, a: Node, b: Node, c: Node, d: Node) -> None:
         self.__all_geometry.append(Linkage(["rhombus", "alpha", "1", "short"], a, b, self.__scale_factor))
         self.__all_geometry.append(Linkage(["rhombus", "beta", "1", "short"], a, c, self.__scale_factor))
@@ -41,9 +49,10 @@ class Model:
         self.__all_geometry.append(Linkage(["rhombus"], c, d, self.__scale_factor))
 
     def __add_initial_counterparallelograms(self):
+        self.__calculate_position_of_lower_point()
         for (angle, x_factor, rhombus_node) in [("alpha", 1, self.__alpha_node), ("beta", -1, self.__beta_node)]:
-            outer = Node([angle], True, (2 * self.__pythagoras(self.__scale_factor) * x_factor, 0))
-            lower = Node([angle], False, (self.__pythagoras(self.__scale_factor) * x_factor, -self.__pythagoras(self.__scale_factor)))
+            outer = Node([angle], True, (2 * self.__scale_factor * x_factor, 0))
+            lower = Node([angle], False, ((2 * self.__scale_factor - self.__pythagoras(self.__scale_factor)) * x_factor, -self.__pythagoras(self.__scale_factor)))
             self.__all_geometry.append(Linkage([angle], self.__origin, outer, self.__scale_factor*2, True))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
