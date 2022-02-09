@@ -12,10 +12,11 @@ class function_exporter:
         self.__function = self.__function.subs(r, 1)
         print(self.__function)
         model = Model()
-        for key, value in self.__function.as_coefficients_dict().items():
-            print(key.args, value)
-            for arg in key.args:
-                print(arg.as_coefficients_dict().items())
+        model.create_multiplicator_of_factor(2, "alpha")
+        #for key, value in self.__function.as_coefficients_dict().items():
+            #print(key.args, value)
+            #for arg in key.args:
+                #print(arg.as_coefficients_dict().items())
             #print(dir(key))
         print(max)
         #sy.pprint(self.__function)

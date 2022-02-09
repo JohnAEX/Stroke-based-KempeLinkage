@@ -4,6 +4,7 @@ from model_export.geometry import Geometry
 class Linkage(Geometry):
     
     def __init__(self, tags: list[str], node_a: Node, node_b: Node, length: float, horizontal_contraint: bool=False) -> None:
+        tags.append("linkage")
         super().__init__(tags)
 
         self.__node_a = node_a

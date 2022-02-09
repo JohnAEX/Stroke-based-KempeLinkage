@@ -3,6 +3,7 @@ from model_export.geometry import Geometry
 class Node(Geometry):
     
     def __init__(self, tags: list[str], is_fixed: bool, location: tuple[float, float]=None) -> None:
+        tags.append("node")
         super().__init__(tags)
         
         self.__linkages = []
@@ -17,3 +18,12 @@ class Node(Geometry):
     
     def get_linkages(self):
         return self.__linkages
+
+    def get_x(self) -> float:
+        return self.__x
+
+    def get_y(self) -> float:
+        return self.__y
+
+    def get_xy(self) -> tuple[float, float]:
+        return self.__x, self.__y

@@ -25,8 +25,8 @@ class Model:
 
     def __make_rhombus_nodes(self):
         a = Node(["rhombus", "origin"], True, (0,0))
-        b = Node(["rhombus", "alpha"], False, (self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
-        c = Node(["rhombus", "beta"], False, (-self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
+        b = Node(["rhombus", "alpha", "1"], False, (self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
+        c = Node(["rhombus", "beta", "1"], False, (-self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
         d = Node(["rhombus", "result"], False, (0, 2*self.__pythagoras(self.__scale_factor)))
         self.__all_geometry.extend([a,b,c,d])
         self.__origin = a
@@ -51,6 +51,28 @@ class Model:
 
     def create_multiplicator_of_factor(self, factor: int, angle: str):
         for i in range(self.__maximum_multiplicator[angle] + 1, factor + 1):
-            self.__append_multiplicator(i)
+            self.__append_multiplicator(i, angle)
 
         self.__maximum_multiplicator[angle] = factor
+
+    def __append_multiplicator(self, level: int, angle: str):
+        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
+        handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
+        distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
+        print(handle_node.get_xy())
+        print(distant_node.get_xy())
+        # füge punkt auf langer Kante hinzu
+        # füge neuen punkt hinzu
+        # zeichne 2 neue linkages
+
+    def __get_short_and_long_linkage_of_previous_mulitplicator(self, level, angle) -> tuple[Linkage, Linkage]:
+        short = None
+        long = None
+        for geom in self.__all_geometry:
+            if geom.has_tag(angle) and geom.has_tag(str(level-1)):
+                if geom.has_tag("short"):
+                    short = geom
+                if geom.has_tag("long"):
+                    long = geom
+        return short, long
+
