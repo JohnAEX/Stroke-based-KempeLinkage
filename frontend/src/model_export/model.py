@@ -65,18 +65,22 @@ class Model:
         self.__maximum_multiplicator[angle] = factor
 
     def __append_multiplicator(self, level: int, angle: str):
+        new_length = self.__scale_factor/2**(level-1)
         short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
         handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
         distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
-        new_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
-        new_y = handle_node.get_y() + (distant_node.get_y() - handle_node.get_y()) / 4
-        new_node = Node([angle], False, (new_x, new_y))
+        helper_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
+        helper_y = handle_node.get_y() + (distant_node.get_y() - handle_node.get_y()) / 4
+        helper_node = Node([angle], False, (helper_x, helper_y))
+        self.__all_geometry.append(helper_node)
+        self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], handle_node, helper_node, new_length))
+        self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], helper_node, distant_node, new_length * 3))
+        new_x = math.cos(level * math.pi/4) * new_length * (1 if angle == "alpha" else -1)
+        new_y = math.sin(level * math.pi/4) * new_length
+        new_node = Node([angle, str(level)], False, (new_x, new_y))
         self.__all_geometry.append(new_node)
-        self.__all_geometry.append(Linkage([angle, "1", "helper"], handle_node, new_node, self.__scale_factor/2**(level-1)))
-        self.__all_geometry.append(Linkage([angle, "1", "helper"], new_node, distant_node, self.__scale_factor/2**(level-1) * 3))
-        # füge punkt auf langer Kante hinzu
-        # füge neuen punkt hinzu
-        # zeichne 2 neue linkages
+        self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length))
+        self.__all_geometry.append(Linkage([angle, str(level), "long"], new_node, helper_node, 2 * new_length))
 
     def __get_short_and_long_linkage_of_previous_mulitplicator(self, level, angle) -> tuple[Linkage, Linkage]:
         short = None
@@ -93,7 +97,7 @@ class Model:
         for geom in self.__all_geometry:
             if geom.has_tag("linkage"):
                 dist = self.__pythagoras2(geom.get_nodes()[0].get_x()-geom.get_nodes()[1].get_x(), geom.get_nodes()[0].get_y()-geom.get_nodes()[1].get_y())
-                if abs(dist - geom.get_length()) > threshold:
+                if abs(dist - geom.get_length()) > threshold and geom.get_nodes()[0] in self.__all_geometry and geom.get_nodes()[1] in self.__all_geometry:
                     print("The model is inconsistant")
                     return False
         print("The model is consistant")
