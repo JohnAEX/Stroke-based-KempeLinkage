@@ -17,7 +17,7 @@ class Model:
              
 
 
-    def __pythagoras(self, a: float, b: float) -> float:
+    def __pythagoras2(self, a: float, b: float) -> float:
         return math.sqrt(a**2 + b**2)
 
     def __pythagoras(self, c: float) -> float:
@@ -68,9 +68,12 @@ class Model:
         short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
         handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
         distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
-        print(handle_node.get_xy())
-        print(distant_node.get_xy())
-        # berechne koordinaten des neuen punktes
+        new_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
+        new_y = handle_node.get_y() + (distant_node.get_y() - handle_node.get_y()) / 4
+        new_node = Node([angle], False, (new_x, new_y))
+        self.__all_geometry.append(new_node)
+        self.__all_geometry.append(Linkage([angle, "1", "helper"], handle_node, new_node, self.__scale_factor/2**(level-1)))
+        self.__all_geometry.append(Linkage([angle, "1", "helper"], new_node, distant_node, self.__scale_factor/2**(level-1) * 3))
         # füge punkt auf langer Kante hinzu
         # füge neuen punkt hinzu
         # zeichne 2 neue linkages
@@ -86,3 +89,12 @@ class Model:
                     long = geom
         return short, long
 
+    def sanity_check(self, threshold = 1) -> bool:
+        for geom in self.__all_geometry:
+            if geom.has_tag("linkage"):
+                dist = self.__pythagoras2(geom.get_nodes()[0].get_x()-geom.get_nodes()[1].get_x(), geom.get_nodes()[0].get_y()-geom.get_nodes()[1].get_y())
+                if abs(dist - geom.get_length()) > threshold:
+                    print("The model is inconsistant")
+                    return False
+        print("The model is consistant")
+        return True
