@@ -1,3 +1,4 @@
+from sympy import Li
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -6,8 +7,8 @@ import math
 
 # TODO:
 # Zwei Winkel addieren
-    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen
-    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern)
+    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen x
+    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) x 
     # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
     # Den Winkel oben muss ich noch überlegen
     # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
@@ -119,3 +120,19 @@ class Model:
                     return False
         print("The model is consistant")
         return True
+
+    def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
+        short_edge, long_edge = linkage_a, linkage_b if linkage_a.get_length() <= linkage_b.get_length() else linkage_b, linkage_a
+        reference_node = long_edge.get_nodes[0] if long_edge.get_nodes[1] == self.__origin else long_edge.get_nodes[0]
+        new_node = self.get_new_node(short_edge, long_edge, reference_node)
+
+    def get_new_node(self, short_edge, long_edge, reference_node):
+        new_node = None
+        if long_edge.get_length != short_edge.get_length * 2:
+            new_x = reference_node.get_x() * 2 * short_edge.get_length() / long_edge.get_length
+            new_y = reference_node.get_y() * 2 * short_edge.get_length() / long_edge.get_length
+            new_node = Node(["helper"], False, (new_x, new_y))
+            self.__all_geometry.append(new_node)
+        else:
+            new_node = reference_node
+        return new_node
