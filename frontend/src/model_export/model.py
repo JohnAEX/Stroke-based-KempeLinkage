@@ -4,11 +4,28 @@ from model_export.node import Node
 from model_export.geometry import Geometry
 import math
 
+# TODO:
+# Zwei Winkel addieren
+    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen
+    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern)
+    # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
+    # Den Winkel oben muss ich noch überlegen
+    # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
+    # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
+    # Jetzt muss der Winkel noch verdoppelt werden. Dazu nimmt man die Addition als kurze Seite des großen und lange Seite des kleinen PaLeG
+    # Wo das Ergebnis liegt wissen wir -> Winkel mal 2, Länge/2
+    # Die untere Kante des großen PLG liegt auf der Horizontalen und ist fix
+    # Für den unteren Punkt die Formel nutzen, die schon für den Multiplikator notwendig war
+    # Jetzt fertig machen -> Eigentlich ist das ja nur ein Multiplikator -> Da sollte sich die Funktion nochmal verwenden lassen
+# pi/2 auf einen Winkel addieren
+# Ergebnisse entsprechend Faktor verlängern
+# Ergebnisse durch Translatoren verbinden
 
 class Model:
 
-    def __init__(self, scale_factor=256) -> None:
+    def __init__(self, scale_factor=256, initial_angle=math.pi/4) -> None:
         self.__scale_factor = scale_factor
+        self.__inital_angle = initial_angle
         self.__all_geometry: list(Geometry) = []
         self.__maximum_multiplicator= {"alpha": 1, "beta": 1}
         a, b, c, d = self.__make_rhombus_nodes()
@@ -36,9 +53,9 @@ class Model:
 
     def __calculate_position_of_lower_point(self) -> tuple[float, float]:
         # I bet, this could be simplified tremendously
-        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(1/4 * math.pi))
-        upper_angle = math.pi - math.asin(math.sin(1/4*math.pi)*2*self.__scale_factor/length_a) 
-        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - 1/4 * math.pi - upper_angle) )
+        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(self.__inital_angle))
+        upper_angle = math.pi - math.asin(self.__inital_angle*2*self.__scale_factor/length_a) 
+        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - self.__inital_angle - upper_angle) )
         y_angle = 1/2 * math.pi - x_angle
         return self.__scale_factor * math.sin(x_angle), self.__scale_factor * math.sin(y_angle)
 
@@ -75,8 +92,8 @@ class Model:
         self.__all_geometry.append(helper_node)
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], handle_node, helper_node, new_length))
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], helper_node, distant_node, new_length * 3))
-        new_x = math.cos(level * math.pi/4) * new_length * (1 if angle == "alpha" else -1)
-        new_y = math.sin(level * math.pi/4) * new_length
+        new_x = math.cos(level * self.__inital_angle) * new_length * (1 if angle == "alpha" else -1)
+        new_y = math.sin(level * self.__inital_angle) * new_length
         new_node = Node([angle, str(level)], False, (new_x, new_y))
         self.__all_geometry.append(new_node)
         self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length))
