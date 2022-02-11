@@ -6,9 +6,9 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angle=math.pi/4) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": math.pi/4, "beta": 3/4*math.pi}) -> None:
         self.__scale_factor = scale_factor
-        self.__inital_angle = initial_angle
+        self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
         self.__maximum_multiplicator= {"alpha": 1, "beta": 1}
         a, b, c, d = self.__make_rhombus_nodes()
@@ -54,8 +54,8 @@ class Model:
         outer = Node(["base"], True, (2 * self.__scale_factor, 0))
         self.__all_geometry.append(Linkage(["base"], self.__origin, outer, self.__scale_factor*2, True))
 
-        for (angle, rhombus_node, initial_angle) in [("alpha", self.__alpha_node, self.__inital_angle), ("beta", self.__beta_node, math.pi - self.__inital_angle)]:
-            x,y = self.__calculate_position_of_lower_point(initial_angle)
+        for (angle, rhombus_node) in [("alpha", self.__alpha_node), ("beta", self.__beta_node)]:
+            x,y = self.__calculate_position_of_lower_point(self.__initial_angles[angle])
             lower = Node([angle], False, (2 * self.__scale_factor - x, -y))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
@@ -78,8 +78,9 @@ class Model:
         self.__all_geometry.append(helper_node)
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], handle_node, helper_node, new_length))
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], helper_node, distant_node, new_length * 3))
-        new_x = math.cos(level * self.__inital_angle) * new_length
-        new_y = math.sin(level * self.__inital_angle) * new_length
+        new_angle = level * self.__initial_angles[angle]
+        new_x = math.cos(new_angle) * new_length
+        new_y = math.sin(new_angle) * new_length
         new_node = Node([angle, str(level)], False, (new_x, new_y))
         self.__all_geometry.append(new_node)
         self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length))
