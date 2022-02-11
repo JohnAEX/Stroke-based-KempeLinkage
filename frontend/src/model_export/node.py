@@ -13,6 +13,9 @@ class Node(Geometry):
 
         self.__is_fixed = is_fixed
 
+    def __str__(self):
+        return "Node [" + str(self.__x) + " | " + str(self.__y) + "]"
+
     def add_linkage(self, linkage) -> None:
         self.__linkages.append(linkage)
     
@@ -27,3 +30,6 @@ class Node(Geometry):
 
     def get_xy(self) -> tuple[float, float]:
         return self.__x, self.__y
+
+    def is_fixed(self) -> bool:
+        return self.__is_fixed

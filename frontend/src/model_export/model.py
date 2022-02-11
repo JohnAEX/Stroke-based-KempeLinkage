@@ -102,3 +102,6 @@ class Model:
                     return False
         print("The model is consistant")
         return True
+
+    def get_geometry(self):
+        return self.__all_geometry
