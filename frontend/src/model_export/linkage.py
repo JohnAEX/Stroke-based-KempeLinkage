@@ -14,6 +14,9 @@ class Linkage(Geometry):
         node_a.add_linkage(self)
         node_b.add_linkage(self)
 
+    def __str__(self):
+        return "Link [" + str(self.__node_a) + " & " + str(self.__node_b) + "]"
+
     def get_nodes(self) -> tuple[Node, Node]:
         return self.__node_a, self.__node_b
 

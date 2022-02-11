@@ -1,4 +1,3 @@
-from sympy import Li
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -136,3 +135,6 @@ class Model:
 # pi/2 auf einen Winkel addieren
 # Ergebnisse entsprechend Faktor verlängern
 # Ergebnisse durch Translatoren verbinden
+
+    def get_geometry(self):
+        return self.__all_geometry
