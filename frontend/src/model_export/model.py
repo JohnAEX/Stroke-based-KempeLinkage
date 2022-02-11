@@ -7,7 +7,7 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angles={"alpha": 0.9*math.pi, "beta": 3/2*math.pi}) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/12*math.pi, "beta": 1/3*math.pi}) -> None:
         self.__scale_factor = scale_factor
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
@@ -134,7 +134,7 @@ class Model:
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
-        reference_node = self.__get_outer_node(long_edge)
+        reference_node = self.__get_outer_node(short_edge)
         new_node = self.__get_new_node(short_edge, long_edge, reference_node)
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
@@ -160,10 +160,12 @@ class Model:
     def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
         if long_edge.get_length() != short_edge.get_length() * 2:
-            new_x = reference_node.get_x() * 2 * short_edge.get_length() / long_edge.get_length()
-            new_y = reference_node.get_y() * 2 * short_edge.get_length() / long_edge.get_length()
-            new_node = Node(["helper"], False, (new_x, new_y))
+            new_x = reference_node.get_x() * long_edge.get_length() / 2 / short_edge.get_length() 
+            new_y = reference_node.get_y() * long_edge.get_length() / 2 / short_edge.get_length()
+            new_node = Node(["helper", "additor"], False, (new_x, new_y))
             self.__all_geometry.append(new_node)
+            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, self.__origin, long_edge.get_length()/2))
+            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, reference_node, abs(long_edge.get_length()/2 - short_edge.get_length())))
         else:
             new_node = reference_node
         return new_node
