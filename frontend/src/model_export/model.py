@@ -6,7 +6,7 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angles={"alpha": math.pi/4, "beta": 3/4*math.pi}) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/4*math.pi, "beta": 3/4*math.pi}) -> None:
         self.__scale_factor = scale_factor
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
@@ -121,19 +121,13 @@ class Model:
 
     def __get_angle_of_node(self, node: Node) -> float:
         x,y = node.get_xy()
-        hypothenuses_length = self.__pythagoras2(x,y)
-        base_angle = math.asin(math.abs(y)/hypothenuses_length)
-        if x > 0:
-            if y > 0:
-                return base_angle
-            else:
-                return 2 * math.pi - base_angle
-        else:
-            if y > 0:
-                return math.pi - base_angle
-            else:
-                return math.pi + base_angle
+        return math.atan(x/y)
+        
 
+    def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
+        y = length * math.sin(angle)
+        x = length * math.cos(angle)
+        return x,y
 
     def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
