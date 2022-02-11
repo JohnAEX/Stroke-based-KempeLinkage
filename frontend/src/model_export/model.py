@@ -35,15 +35,15 @@ class Model:
         self.__beta_node = c
         return a,b,c,d
 
-    def __calculate_position_of_lower_point(self, angle) -> tuple[float, float]:
+    def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         # I bet, this could be simplified tremendously
-        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(angle))
-        upper_angle = math.asin(math.sin(angle)*2*self.__scale_factor/length_a) 
+        length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
+        upper_angle = math.asin(math.sin(angle)*2*short_edge_length/length_a) 
         if angle < math.pi/2:
             upper_angle = math.pi - upper_angle
         x_angle = 1/2 * math.pi - (upper_angle - (math.pi - angle - upper_angle) )
         y_angle = 1/2 * math.pi - x_angle
-        return self.__scale_factor * math.sin(x_angle), self.__scale_factor * math.sin(y_angle)
+        return 2 * short_edge_length - short_edge_length * math.sin(x_angle), -short_edge_length * math.sin(y_angle)
 
     def __make_rhombus_linkages(self, a: Node, b: Node, c: Node, d: Node) -> None:
         self.__all_geometry.append(Linkage(["rhombus", "alpha", "1", "short"], a, b, self.__scale_factor))
@@ -56,8 +56,8 @@ class Model:
         self.__all_geometry.append(Linkage(["base"], self.__origin, outer, self.__scale_factor*2, True))
 
         for (angle, rhombus_node) in [("alpha", self.__alpha_node), ("beta", self.__beta_node)]:
-            x,y = self.__calculate_position_of_lower_point(self.__initial_angles[angle])
-            lower = Node([angle], False, (2 * self.__scale_factor - x, -y))
+            x,y = self.__calculate_position_of_lower_multiplicator_node(self.__initial_angles[angle], self.__scale_factor)
+            lower = Node([angle], False, (x, y))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
             self.__all_geometry.extend([outer, lower])
@@ -78,12 +78,7 @@ class Model:
         short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
         handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
         distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
-        helper_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
-        helper_y = handle_node.get_y() + (distant_node.get_y() - handle_node.get_y()) / 4
-        helper_node = Node([angle], False, (helper_x, helper_y))
-        self.__all_geometry.append(helper_node)
-        self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], handle_node, helper_node, new_length))
-        self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], helper_node, distant_node, new_length * 3))
+        helper_node = self.__place_helper_node_for_multiplicator([angle], [angle, str(level-1), "helper"], new_length, handle_node, distant_node)
         new_angle = level * self.__initial_angles[angle]
         new_x = math.cos(new_angle) * new_length
         new_y = math.sin(new_angle) * new_length
@@ -91,6 +86,15 @@ class Model:
         self.__all_geometry.append(new_node)
         self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length))
         self.__all_geometry.append(Linkage([angle, str(level), "long"], new_node, helper_node, 2 * new_length))
+
+    def __place_helper_node_for_multiplicator(self, node_tags, linkage_tags, new_short_length, handle_node, distant_node):
+        helper_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
+        helper_y = handle_node.get_y() + (distant_node.get_y() - handle_node.get_y()) / 4
+        helper_node = Node(node_tags, False, (helper_x, helper_y))
+        self.__all_geometry.append(helper_node)
+        self.__all_geometry.append(Linkage(linkage_tags, handle_node, helper_node, new_short_length))
+        self.__all_geometry.append(Linkage(linkage_tags, helper_node, distant_node, new_short_length * 3))
+        return helper_node
 
     def __get_short_and_long_linkage_of_previous_mulitplicator(self, level, angle) -> tuple[Linkage, Linkage]:
         short = None
@@ -141,7 +145,6 @@ class Model:
         small_angle = self.__get_angle_of_node(long_outer)
         large_angle = self.__get_angle_of_node(short_outer)
         sum_angle = small_angle + large_angle
-        print(f"small: {small_angle}, large: {large_angle}, sum angle: {sum_angle}")
         x_half,y_half = self.__get_x_y_for_angle_and_length(sum_angle/2, long_edge.get_length()/2)
         x_full, y_full = self.__get_x_y_for_angle_and_length(sum_angle, long_edge.get_length()/4)
         half_node = Node(["helper", "additor"], False, (x_half,y_half))
@@ -150,6 +153,16 @@ class Model:
         self.__all_geometry.append(full_node)
         self.__all_geometry.append(Linkage(["helper", "additor"], self.__origin, half_node, long_edge.get_length()/2))
         self.__all_geometry.append(Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4))
+        outer_multiplicator_node = Node(["additor", "helper"], True, (long_edge.get_length(), 0))
+        self.__all_geometry.append(outer_multiplicator_node)
+        self.__all_geometry.append(Linkage(["additor", "helper"], self.__origin, outer_multiplicator_node, long_edge.get_length(), True))
+        lower_multiplicator_node_x, lower_multiplicator_node_y = self.__calculate_position_of_lower_multiplicator_node(sum_angle/2, long_edge.get_length()/2)
+        lower_multiplicator_node = Node(["additor", "helper"], False, (lower_multiplicator_node_x, lower_multiplicator_node_y))
+        self.__all_geometry.append(lower_multiplicator_node)
+        self.__all_geometry.append(Linkage(["additor", "helper"], lower_multiplicator_node, outer_multiplicator_node, long_edge.get_length()/2))
+        self.__all_geometry.append(Linkage(["additor", "helper"], half_node, lower_multiplicator_node, long_edge.get_length()))
+        multiplicator_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"],["additor", "helper"], long_edge.get_length()/4, half_node, lower_multiplicator_node)
+        self.__all_geometry.append(Linkage(["additor", "helper"], multiplicator_helper_node, full_node, long_edge.get_length()/2))
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
         outer_node_a = self.__get_outer_node(linkage_a)
