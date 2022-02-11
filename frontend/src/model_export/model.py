@@ -121,7 +121,10 @@ class Model:
 
     def __get_angle_of_node(self, node: Node) -> float:
         x,y = node.get_xy()
-        return math.atan(x/y)
+        if y > 0:
+            return math.acos(x)
+        else:
+            return math.pi + (math.pi - math.acos(x))
         
 
     def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
