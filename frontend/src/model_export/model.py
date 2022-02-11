@@ -159,13 +159,13 @@ class Model:
 
     def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
-        if long_edge.get_length() != short_edge.get_length() * 2:
-            new_x = reference_node.get_x() * long_edge.get_length() / 2 / short_edge.get_length() 
-            new_y = reference_node.get_y() * long_edge.get_length() / 2 / short_edge.get_length()
+        if long_edge.get_length() != short_edge.get_length() * 4:
+            new_x = reference_node.get_x() * long_edge.get_length() / 4 / short_edge.get_length() 
+            new_y = reference_node.get_y() * long_edge.get_length() / 4 / short_edge.get_length()
             new_node = Node(["helper", "additor"], False, (new_x, new_y))
             self.__all_geometry.append(new_node)
-            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, self.__origin, long_edge.get_length()/2))
-            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, reference_node, abs(long_edge.get_length()/2 - short_edge.get_length())))
+            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, self.__origin, long_edge.get_length()/4))
+            self.__all_geometry.append(Linkage(["helper", "additor"], new_node, reference_node, abs(long_edge.get_length()/4 - short_edge.get_length())))
         else:
             new_node = reference_node
         return new_node

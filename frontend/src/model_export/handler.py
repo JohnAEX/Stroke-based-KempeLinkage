@@ -13,7 +13,7 @@ class function_exporter:
         print(self.__function)
         model = Model()
         link_a = model.create_and_get_multiplicator_of_factor(2, "alpha")
-        link_b = model.create_and_get_multiplicator_of_factor(4, "beta")
+        link_b = model.create_and_get_multiplicator_of_factor(3, "beta")
         add = model.add_angles(link_a, link_b)
         model.sanity_check()
         model.draw_linkage()
