@@ -162,10 +162,6 @@ class Model:
         multiplicator_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"],["additor", "helper"], long_edge.get_length()/4, half_node, lower_multiplicator_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], multiplicator_helper_node, full_node, long_edge.get_length()/2))
         lower_additor_node_x, lower_additor_node_y = self.__calculate_position_of_lower_multiplicator_node(sum_angle/2 - small_angle, long_edge.get_length()/2)
-        print(sum_angle/2 - small_angle)
-        print(lower_additor_node_x)
-        print(lower_additor_node_y)
-        print(long_edge.get_length())
         lower_additor_node_x_rotated = math.cos(small_angle) * lower_additor_node_x - math.sin(small_angle) * lower_additor_node_y
         lower_additor_node_y_rotated = math.sin(small_angle) * lower_additor_node_x + math.cos(small_angle) * lower_additor_node_y
         lower_additor_node = Node(["additor", "helper"], False, (lower_additor_node_x_rotated, lower_additor_node_y_rotated))
