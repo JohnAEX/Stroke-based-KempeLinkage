@@ -34,11 +34,13 @@ class Model:
         self.__beta_node = c
         return a,b,c,d
 
-    def __calculate_position_of_lower_point(self) -> tuple[float, float]:
+    def __calculate_position_of_lower_point(self, angle) -> tuple[float, float]:
         # I bet, this could be simplified tremendously
-        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(self.__inital_angle))
-        upper_angle = math.pi - math.asin(math.sin(self.__inital_angle)*2*self.__scale_factor/length_a) 
-        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - self.__inital_angle - upper_angle) )
+        length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(angle))
+        upper_angle = math.asin(math.sin(angle)*2*self.__scale_factor/length_a) 
+        if angle < math.pi/2:
+            upper_angle = math.pi - upper_angle
+        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - angle - upper_angle) )
         y_angle = 1/2 * math.pi - x_angle
         return self.__scale_factor * math.sin(x_angle), self.__scale_factor * math.sin(y_angle)
 
@@ -49,11 +51,12 @@ class Model:
         self.__all_geometry.append(Linkage(["rhombus"], c, d, self.__scale_factor))
 
     def __add_initial_counterparallelograms(self):
-        x,y = self.__calculate_position_of_lower_point()
-        for (angle, x_factor, rhombus_node) in [("alpha", 1, self.__alpha_node), ("beta", -1, self.__beta_node)]:
-            outer = Node([angle], True, (2 * self.__scale_factor * x_factor, 0))
-            lower = Node([angle], False, ((2 * self.__scale_factor - x) * x_factor, -y))
-            self.__all_geometry.append(Linkage([angle], self.__origin, outer, self.__scale_factor*2, True))
+        outer = Node(["base"], True, (2 * self.__scale_factor, 0))
+        self.__all_geometry.append(Linkage(["base"], self.__origin, outer, self.__scale_factor*2, True))
+
+        for (angle, rhombus_node, initial_angle) in [("alpha", self.__alpha_node, self.__inital_angle), ("beta", self.__beta_node, math.pi - self.__inital_angle)]:
+            x,y = self.__calculate_position_of_lower_point(initial_angle)
+            lower = Node([angle], False, (2 * self.__scale_factor - x, -y))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
             self.__all_geometry.extend([outer, lower])
@@ -75,7 +78,7 @@ class Model:
         self.__all_geometry.append(helper_node)
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], handle_node, helper_node, new_length))
         self.__all_geometry.append(Linkage([angle, str(level-1), "helper"], helper_node, distant_node, new_length * 3))
-        new_x = math.cos(level * self.__inital_angle) * new_length * (1 if angle == "alpha" else -1)
+        new_x = math.cos(level * self.__inital_angle) * new_length
         new_y = math.sin(level * self.__inital_angle) * new_length
         new_node = Node([angle, str(level)], False, (new_x, new_y))
         self.__all_geometry.append(new_node)
@@ -143,7 +146,7 @@ class Model:
         return new_node
 
     def __get_outer_node(self, linkage: Linkage) -> Node:
-        return linkage_a.get_nodes()[0] if linkage_a.get_nodes()[0] != self.__origin else linkage_a.get_nodes()[1]
+        return linkage.get_nodes()[0] if linkage.get_nodes()[0] != self.__origin else linkage.get_nodes()[1]
 
 # TODO:
 # Zwei Winkel addieren
