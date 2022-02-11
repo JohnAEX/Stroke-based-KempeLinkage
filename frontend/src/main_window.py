@@ -3,7 +3,7 @@ import PySimpleGUI as sg
 import math
 
 from approximation_techniques.polynomial import PolynomialApproximation
-from frontend.src.model_export.converter import convert_geometry_to_mechanism
+from model_export.converter import convert_geometry_to_mechanism
 
 from model_export.model import Model
 

@@ -104,9 +104,32 @@ class Model:
         return True
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
-        short_edge, long_edge = linkage_a, linkage_b if linkage_a.get_length() <= linkage_b.get_length() else linkage_b, linkage_a
-        reference_node = long_edge.get_nodes[0] if long_edge.get_nodes[1] == self.__origin else long_edge.get_nodes[0]
+        short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
+        reference_node = self.__get_outer_node(long_edge)
         new_node = self.__get_new_node(short_edge, long_edge, reference_node)
+
+    def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
+        outer_node_a = self.__get_outer_node(linkage_a)
+        outer_node_b = self.__get_outer_node(linkage_b)
+        angle_a = self.__get_angle_of_node(outer_node_a)
+        angle_b = self.__get_angle_of_node(outer_node_b)
+        return linkage_a, linkage_b if angle_a > angle_b else linkage_b, linkage_a
+
+    def __get_angle_of_node(self, node: Node) -> float:
+        x,y = node.get_xy()
+        hypothenuses_length = self.__pythagoras2(x,y)
+        base_angle = math.asin(math.abs(y)/hypothenuses_length)
+        if x > 0:
+            if y > 0:
+                return base_angle
+            else:
+                return 2 * math.pi - base_angle
+        else:
+            if y > 0:
+                return math.pi - base_angle
+            else:
+                return math.pi + base_angle
+
 
     def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
@@ -118,6 +141,9 @@ class Model:
         else:
             new_node = reference_node
         return new_node
+
+    def __get_outer_node(self, linkage: Linkage) -> Node:
+        return linkage_a.get_nodes()[0] if linkage_a.get_nodes()[0] != self.__origin else linkage_a.get_nodes()[1]
 
 # TODO:
 # Zwei Winkel addieren
