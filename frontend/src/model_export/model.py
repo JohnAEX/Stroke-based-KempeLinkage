@@ -6,7 +6,7 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/4*math.pi, "beta": 3/4*math.pi}) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/8*math.pi, "beta": 3/4*math.pi}) -> None:
         self.__scale_factor = scale_factor
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
@@ -25,9 +25,11 @@ class Model:
 
     def __make_rhombus_nodes(self):
         a = Node(["rhombus", "origin"], True, (0,0))
-        b = Node(["rhombus", "alpha", "1"], False, (self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
-        c = Node(["rhombus", "beta", "1"], False, (-self.__pythagoras(self.__scale_factor), self.__pythagoras(self.__scale_factor)))
-        d = Node(["rhombus", "result"], False, (0, 2*self.__pythagoras(self.__scale_factor)))
+        b_x, b_y = self.__get_x_y_for_angle_and_length(self.__initial_angles["alpha"], self.__scale_factor)
+        c_x, c_y = self.__get_x_y_for_angle_and_length(self.__initial_angles["beta"], self.__scale_factor)
+        b = Node(["rhombus", "alpha", "1"], False, (b_x, b_y))
+        c = Node(["rhombus", "beta", "1"], False, (c_x, c_y))
+        d = Node(["rhombus", "result"], False, (b_x + c_x, b_y + c_y))
         self.__all_geometry.extend([a,b,c,d])
         self.__origin = a
         self.__alpha_node = b
