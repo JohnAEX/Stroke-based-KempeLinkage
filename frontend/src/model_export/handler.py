@@ -15,6 +15,7 @@ class function_exporter:
         model.create_multiplicator_of_factor(4, "alpha")
         model.create_multiplicator_of_factor(4, "beta")
         model.sanity_check()
+        model.draw_linkage()
         #for key, value in self.__function.as_coefficients_dict().items():
             #print(key.args, value)
             #for arg in key.args:

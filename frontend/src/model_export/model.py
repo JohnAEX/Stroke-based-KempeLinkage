@@ -2,6 +2,7 @@ from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
 from model_export.geometry import Geometry
+import matplotlib.pyplot as plt
 import math
 
 class Model:
@@ -19,9 +20,6 @@ class Model:
 
     def __pythagoras2(self, a: float, b: float) -> float:
         return math.sqrt(a**2 + b**2)
-
-    def __pythagoras(self, c: float) -> float:
-        return math.sqrt(c**2 / 2)
 
     def __make_rhombus_nodes(self):
         a = Node(["rhombus", "origin"], True, (0,0))
@@ -108,6 +106,23 @@ class Model:
                     return False
         print("The model is consistant")
         return True
+
+    def draw_linkage(self) -> None:
+        for geom in self.__all_geometry:
+            if geom.has_tag("node"): continue
+            color = "black"
+            if geom.has_tag("rhombus"):
+                color = "red"
+            elif geom.has_tag("alpha"):
+                color = "green"
+            elif geom.has_tag("beta"):
+                color = "blue"
+            elif geom.has_tag("helper"):
+                color = "grey"
+            x1,y1 = geom.get_nodes()[0].get_xy()
+            x2,y2 = geom.get_nodes()[1].get_xy()
+            plt.plot([x1, x2], [y1, y2], marker = 'o', color = color)
+        plt.show()
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
