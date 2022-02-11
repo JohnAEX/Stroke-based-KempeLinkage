@@ -7,7 +7,7 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/8*math.pi, "beta": 3/4*math.pi}) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": 0.9*math.pi, "beta": 3/2*math.pi}) -> None:
         self.__scale_factor = scale_factor
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
@@ -61,11 +61,16 @@ class Model:
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
             self.__all_geometry.extend([outer, lower])
 
-    def create_multiplicator_of_factor(self, factor: int, angle: str):
+    def create_and_get_multiplicator_of_factor(self, factor: int, angle: str):
         for i in range(self.__maximum_multiplicator[angle] + 1, factor + 1):
             self.__append_multiplicator(i, angle)
+            self.__maximum_multiplicator[angle] = i
 
-        self.__maximum_multiplicator[angle] = factor
+        for geom in self.__all_geometry:
+            if geom.has_tag("linkage") and geom.has_tag("short") and geom.has_tag(str(factor)) and geom.has_tag(angle):
+                return geom
+        
+
 
     def __append_multiplicator(self, level: int, angle: str):
         new_length = self.__scale_factor/2**(level-1)
@@ -109,7 +114,6 @@ class Model:
 
     def draw_linkage(self) -> None:
         for geom in self.__all_geometry:
-            if geom.has_tag("node"): continue
             color = "black"
             if geom.has_tag("rhombus"):
                 color = "red"
@@ -119,9 +123,13 @@ class Model:
                 color = "blue"
             elif geom.has_tag("helper"):
                 color = "grey"
-            x1,y1 = geom.get_nodes()[0].get_xy()
-            x2,y2 = geom.get_nodes()[1].get_xy()
-            plt.plot([x1, x2], [y1, y2], marker = 'o', color = color)
+            if geom.has_tag("linkage"):
+                x1,y1 = geom.get_nodes()[0].get_xy()
+                x2,y2 = geom.get_nodes()[1].get_xy()
+                plt.plot([x1, x2], [y1, y2], color = color)
+            else:
+                x,y = geom.get_xy()
+                plt.plot(x, y, marker='o', color=color)
         plt.show()
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
@@ -134,14 +142,14 @@ class Model:
         outer_node_b = self.__get_outer_node(linkage_b)
         angle_a = self.__get_angle_of_node(outer_node_a)
         angle_b = self.__get_angle_of_node(outer_node_b)
-        return linkage_a, linkage_b if angle_a > angle_b else linkage_b, linkage_a
+        return (linkage_a, linkage_b) if angle_a > angle_b else (linkage_b, linkage_a)
 
     def __get_angle_of_node(self, node: Node) -> float:
         x,y = node.get_xy()
         if y > 0:
-            return math.acos(x)
+            return math.cos(x)
         else:
-            return math.pi + (math.pi - math.acos(x))
+            return math.pi + (math.pi - math.cos(x))
         
 
     def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
@@ -151,9 +159,9 @@ class Model:
 
     def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
-        if long_edge.get_length != short_edge.get_length * 2:
-            new_x = reference_node.get_x() * 2 * short_edge.get_length() / long_edge.get_length
-            new_y = reference_node.get_y() * 2 * short_edge.get_length() / long_edge.get_length
+        if long_edge.get_length() != short_edge.get_length() * 2:
+            new_x = reference_node.get_x() * 2 * short_edge.get_length() / long_edge.get_length()
+            new_y = reference_node.get_y() * 2 * short_edge.get_length() / long_edge.get_length()
             new_node = Node(["helper"], False, (new_x, new_y))
             self.__all_geometry.append(new_node)
         else:
@@ -165,8 +173,8 @@ class Model:
 
 # TODO:
 # Zwei Winkel addieren
-    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen x
-    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) x 
+    # (X) Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen 
+    # (x) Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) 
     # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
     # Den Winkel oben muss ich noch überlegen
     # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
