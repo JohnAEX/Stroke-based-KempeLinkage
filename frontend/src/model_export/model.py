@@ -38,9 +38,7 @@ class Model:
     def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         # I bet, this could be simplified tremendously
         length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
-        upper_angle = math.asin(math.sin(angle)*2*short_edge_length/length_a) 
-        if angle < math.pi/2:
-            upper_angle = math.pi - upper_angle
+        upper_angle = math.acos((length_a**2 + short_edge_length**2 - (2*short_edge_length)**2)/(2*length_a*short_edge_length))
         x_angle = 1/2 * math.pi - (upper_angle - (math.pi - angle - upper_angle) )
         y_angle = 1/2 * math.pi - x_angle
         return 2 * short_edge_length - short_edge_length * math.sin(x_angle), -short_edge_length * math.sin(y_angle)
@@ -163,6 +161,19 @@ class Model:
         self.__all_geometry.append(Linkage(["additor", "helper"], half_node, lower_multiplicator_node, long_edge.get_length()))
         multiplicator_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"],["additor", "helper"], long_edge.get_length()/4, half_node, lower_multiplicator_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], multiplicator_helper_node, full_node, long_edge.get_length()/2))
+        lower_additor_node_x, lower_additor_node_y = self.__calculate_position_of_lower_multiplicator_node(sum_angle/2 - small_angle, long_edge.get_length()/2)
+        print(sum_angle/2 - small_angle)
+        print(lower_additor_node_x)
+        print(lower_additor_node_y)
+        print(long_edge.get_length())
+        lower_additor_node_x_rotated = math.cos(small_angle) * lower_additor_node_x - math.sin(small_angle) * lower_additor_node_y
+        lower_additor_node_y_rotated = math.sin(small_angle) * lower_additor_node_x + math.cos(small_angle) * lower_additor_node_y
+        lower_additor_node = Node(["additor", "helper"], False, (lower_additor_node_x_rotated, lower_additor_node_y_rotated))
+        self.__all_geometry.append(lower_additor_node)
+        self.__all_geometry.append(Linkage(["additor", "helper"], lower_additor_node, long_outer, long_edge.get_length()/2))
+        self.__all_geometry.append(Linkage(["additor", "helper"], lower_additor_node, half_node, long_edge.get_length()))
+        additor_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"], ["additor", "helper"], long_edge.get_length()/4, half_node, lower_additor_node)
+        self.__all_geometry.append(Linkage(["additor", "helper"], new_node, additor_helper_node, long_edge.get_length()/2))
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
         outer_node_a = self.__get_outer_node(linkage_a)
@@ -203,17 +214,10 @@ class Model:
 
 # TODO:
 # Zwei Winkel addieren
-    # (X) Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen 
-    # (x) Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) 
     # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
     # Den Winkel oben muss ich noch überlegen
     # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
     # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
-    # Jetzt muss der Winkel noch verdoppelt werden. Dazu nimmt man die Addition als kurze Seite des großen und lange Seite des kleinen PaLeG
-    # Wo das Ergebnis liegt wissen wir -> Winkel mal 2, Länge/2
-    # Die untere Kante des großen PLG liegt auf der Horizontalen und ist fix
-    # Für den unteren Punkt die Formel nutzen, die schon für den Multiplikator notwendig war
-    # Jetzt fertig machen -> Eigentlich ist das ja nur ein Multiplikator -> Da sollte sich die Funktion nochmal verwenden lassen
 # pi/2 auf einen Winkel addieren
 # Ergebnisse entsprechend Faktor verlängern
 # Ergebnisse durch Translatoren verbinden
