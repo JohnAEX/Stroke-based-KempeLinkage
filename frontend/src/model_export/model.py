@@ -1,3 +1,4 @@
+from numpy import full
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -134,8 +135,21 @@ class Model:
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
-        reference_node = self.__get_outer_node(short_edge)
-        new_node = self.__get_new_node(short_edge, long_edge, reference_node)
+        short_outer = self.__get_outer_node(short_edge)
+        long_outer = self.__get_outer_node(long_edge)
+        new_node = self.__get_new_node(short_edge, long_edge, short_outer)
+        small_angle = self.__get_angle_of_node(long_outer)
+        large_angle = self.__get_angle_of_node(short_outer)
+        sum_angle = small_angle + large_angle
+        print(f"small: {small_angle}, large: {large_angle}, sum angle: {sum_angle}")
+        x_half,y_half = self.__get_x_y_for_angle_and_length(sum_angle/2, long_edge.get_length()/2)
+        x_full, y_full = self.__get_x_y_for_angle_and_length(sum_angle, long_edge.get_length()/4)
+        half_node = Node(["helper", "additor"], False, (x_half,y_half))
+        full_node = Node(["additor"], False, (x_full, y_full))
+        self.__all_geometry.append(half_node)
+        self.__all_geometry.append(full_node)
+        self.__all_geometry.append(Linkage(["helper", "additor"], self.__origin, half_node, long_edge.get_length()/2))
+        self.__all_geometry.append(Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4))
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
         outer_node_a = self.__get_outer_node(linkage_a)
@@ -146,10 +160,11 @@ class Model:
 
     def __get_angle_of_node(self, node: Node) -> float:
         x,y = node.get_xy()
+        hyp = self.__pythagoras2(x, y)
         if y > 0:
-            return math.cos(x)
+            return math.acos(x/hyp)
         else:
-            return math.pi + (math.pi - math.cos(x))
+            return math.pi + (math.pi - math.acos(x/hyp))
         
 
     def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
