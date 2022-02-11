@@ -5,23 +5,6 @@ from model_export.node import Node
 from model_export.geometry import Geometry
 import math
 
-# TODO:
-# Zwei Winkel addieren
-    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen x
-    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) x 
-    # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
-    # Den Winkel oben muss ich noch überlegen
-    # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
-    # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
-    # Jetzt muss der Winkel noch verdoppelt werden. Dazu nimmt man die Addition als kurze Seite des großen und lange Seite des kleinen PaLeG
-    # Wo das Ergebnis liegt wissen wir -> Winkel mal 2, Länge/2
-    # Die untere Kante des großen PLG liegt auf der Horizontalen und ist fix
-    # Für den unteren Punkt die Formel nutzen, die schon für den Multiplikator notwendig war
-    # Jetzt fertig machen -> Eigentlich ist das ja nur ein Multiplikator -> Da sollte sich die Funktion nochmal verwenden lassen
-# pi/2 auf einen Winkel addieren
-# Ergebnisse entsprechend Faktor verlängern
-# Ergebnisse durch Translatoren verbinden
-
 class Model:
 
     def __init__(self, scale_factor=256, initial_angle=math.pi/4) -> None:
@@ -55,7 +38,7 @@ class Model:
     def __calculate_position_of_lower_point(self) -> tuple[float, float]:
         # I bet, this could be simplified tremendously
         length_a = math.sqrt(5*self.__scale_factor**2-4*self.__scale_factor**2*math.cos(self.__inital_angle))
-        upper_angle = math.pi - math.asin(self.__inital_angle*2*self.__scale_factor/length_a) 
+        upper_angle = math.pi - math.asin(math.sin(self.__inital_angle)*2*self.__scale_factor/length_a) 
         x_angle = 1/2 * math.pi - (upper_angle - (math.pi - self.__inital_angle - upper_angle) )
         y_angle = 1/2 * math.pi - x_angle
         return self.__scale_factor * math.sin(x_angle), self.__scale_factor * math.sin(y_angle)
@@ -124,9 +107,9 @@ class Model:
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
         short_edge, long_edge = linkage_a, linkage_b if linkage_a.get_length() <= linkage_b.get_length() else linkage_b, linkage_a
         reference_node = long_edge.get_nodes[0] if long_edge.get_nodes[1] == self.__origin else long_edge.get_nodes[0]
-        new_node = self.get_new_node(short_edge, long_edge, reference_node)
+        new_node = self.__get_new_node(short_edge, long_edge, reference_node)
 
-    def get_new_node(self, short_edge, long_edge, reference_node):
+    def __get_new_node(self, short_edge, long_edge, reference_node):
         new_node = None
         if long_edge.get_length != short_edge.get_length * 2:
             new_x = reference_node.get_x() * 2 * short_edge.get_length() / long_edge.get_length
@@ -136,3 +119,20 @@ class Model:
         else:
             new_node = reference_node
         return new_node
+
+# TODO:
+# Zwei Winkel addieren
+    # Den kleineren Winkel als lange Kante des inneren Counterparallelograms nehmen x
+    # Den längeren auf der Hälfte des kürzeren Abtragen (kürzen oder verlängern) x 
+    # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
+    # Den Winkel oben muss ich noch überlegen
+    # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
+    # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
+    # Jetzt muss der Winkel noch verdoppelt werden. Dazu nimmt man die Addition als kurze Seite des großen und lange Seite des kleinen PaLeG
+    # Wo das Ergebnis liegt wissen wir -> Winkel mal 2, Länge/2
+    # Die untere Kante des großen PLG liegt auf der Horizontalen und ist fix
+    # Für den unteren Punkt die Formel nutzen, die schon für den Multiplikator notwendig war
+    # Jetzt fertig machen -> Eigentlich ist das ja nur ein Multiplikator -> Da sollte sich die Funktion nochmal verwenden lassen
+# pi/2 auf einen Winkel addieren
+# Ergebnisse entsprechend Faktor verlängern
+# Ergebnisse durch Translatoren verbinden
