@@ -1,4 +1,5 @@
 from numpy import full
+from sympy import li
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -16,8 +17,6 @@ class Model:
         a, b, c, d = self.__make_rhombus_nodes()
         self.__make_rhombus_linkages(a,b,c,d)
         self.__add_initial_counterparallelograms()
-             
-
 
     def __pythagoras2(self, a: float, b: float) -> float:
         return math.sqrt(a**2 + b**2)
@@ -69,8 +68,6 @@ class Model:
             if geom.has_tag("linkage") and geom.has_tag("short") and geom.has_tag(str(factor)) and geom.has_tag(angle):
                 return geom
         
-
-
     def __append_multiplicator(self, level: int, angle: str):
         new_length = self.__scale_factor/2**(level-1)
         short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
@@ -115,8 +112,10 @@ class Model:
         print("The model is consistant")
         return True
 
-    def draw_linkage(self) -> None:
-        for geom in self.__all_geometry:
+    def draw_linkage(self, geometry: list[Geometry] = None) -> None:
+        if geometry is None:
+            geometry = self.__all_geometry
+        for geom in geometry:
             color = "black"
             if geom.has_tag("rhombus"):
                 color = "red"
@@ -124,6 +123,8 @@ class Model:
                 color = "green"
             elif geom.has_tag("beta"):
                 color = "blue"
+            elif geom.has_tag("combination"):
+                color = "purple"
             elif geom.has_tag("helper"):
                 color = "grey"
             if geom.has_tag("linkage"):
@@ -132,10 +133,13 @@ class Model:
                 plt.plot([x1, x2], [y1, y2], color = color)
             else:
                 x,y = geom.get_xy()
-                plt.plot(x, y, marker='o', color=color)
+                if geom.has_tag("final"):
+                    plt.plot(x, y, marker='o', color="yellow", markersize=10)
+                else:
+                    plt.plot(x, y, marker='o', color=color)
         plt.show()
 
-    def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
+    def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> Linkage:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
         short_outer = self.__get_outer_node(short_edge)
         long_outer = self.__get_outer_node(long_edge)
@@ -150,7 +154,8 @@ class Model:
         self.__all_geometry.append(half_node)
         self.__all_geometry.append(full_node)
         self.__all_geometry.append(Linkage(["helper", "additor"], self.__origin, half_node, long_edge.get_length()/2))
-        self.__all_geometry.append(Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4))
+        result_handle = Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4)
+        self.__all_geometry.append(result_handle)
         outer_multiplicator_node = Node(["additor", "helper"], True, (long_edge.get_length(), 0))
         self.__all_geometry.append(outer_multiplicator_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], self.__origin, outer_multiplicator_node, long_edge.get_length(), True))
@@ -170,6 +175,8 @@ class Model:
         self.__all_geometry.append(Linkage(["additor", "helper"], lower_additor_node, half_node, long_edge.get_length()))
         additor_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"], ["additor", "helper"], long_edge.get_length()/4, half_node, lower_additor_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], new_node, additor_helper_node, long_edge.get_length()/2))
+        return result_handle
+
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
         outer_node_a = self.__get_outer_node(linkage_a)
@@ -186,7 +193,6 @@ class Model:
         else:
             return math.pi + (math.pi - math.acos(x/hyp))
         
-
     def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
         y = length * math.sin(angle)
         x = length * math.cos(angle)
@@ -208,12 +214,61 @@ class Model:
     def __get_outer_node(self, linkage: Linkage) -> Node:
         return linkage.get_nodes()[0] if linkage.get_nodes()[0] != self.__origin else linkage.get_nodes()[1]
 
+    def add_half_pi_to_linkage_angle(self, linkage: Linkage) -> Linkage:
+        outer_node = self.__get_outer_node(linkage)
+        new_angle = self.__get_angle_of_node(outer_node) + math.pi/2
+        x,y = self.__get_x_y_for_angle_and_length(new_angle, linkage.get_length())
+        new_node = Node(["pi/2"], False, (x,y))
+        self.__all_geometry.append(new_node)
+        new_handle = Linkage(["pi/2"], self.__origin, new_node, linkage.get_length())
+        self.__all_geometry.append(new_handle)
+        self.__all_geometry.append(Linkage(["pi/2", "helper"], outer_node, new_node, self.__pythagoras2(linkage.get_length(), linkage.get_length())))
+        return new_handle
+
+    def lengthen_or_shorten_linkage_to_length(self, linkage: Linkage, length: float) -> Linkage:
+        length = length * self.__scale_factor
+        if linkage.get_length() == length:
+            return linkage
+        outer_node = self.__get_outer_node(linkage)
+        x = outer_node.get_x() * length / linkage.get_length()
+        y = outer_node.get_y() * length / linkage.get_length()
+        new_node = Node(["length_change"], False, (x,y))
+        self.__all_geometry.append(new_node)
+        result_linkage = Linkage(["length_change"], self.__origin, new_node, length)
+        self.__all_geometry.append(result_linkage)
+        self.__all_geometry.append(Linkage(["length_change"], outer_node, new_node, abs(length - linkage.get_length())))
+        return result_linkage
+
+    def add_up_linkages_to_final_result(self, linkages: list[Linkage], inner_node: Node = None) -> Node:
+        if inner_node is None:
+            inner_node = self.__origin
+    
+        new_linkages = []
+        inner_a, outer_a = self.__get_inner_and_outer_node(linkages[0], inner_node)
+        final_node = None
+        for linkage in linkages[1:]:
+            inner_b, outer_b = self.__get_inner_and_outer_node(linkage, inner_node)
+            new_node = Node(["combination"], False, (outer_a.get_x() + (outer_b.get_x() - inner_b.get_x()), outer_a.get_y() + (outer_b.get_y() - inner_b.get_y())))
+            new_linkage = Linkage(["combination"], outer_a, new_node, linkage.get_length())
+            new_linkages.append(new_linkage)
+            self.__all_geometry.append(new_linkage)
+            self.__all_geometry.append(Linkage(["combination"], outer_b, new_node, linkages[0].get_length()))
+            self.__all_geometry.append(new_node)
+            final_node = new_node
+        if len(new_linkages) > 1:
+           return self.add_up_linkages_to_final_result(new_linkages, outer_a)
+        else:
+            final_node.append_tag("final")
+            return final_node
+        
+
+    def __get_inner_and_outer_node(self, linkage: Linkage, inner_node: Node):
+        if linkage.get_nodes()[0] == inner_node:
+            return linkage.get_nodes()[0], linkage.get_nodes()[1]
+        else: 
+            return linkage.get_nodes()[1], linkage.get_nodes()[0]
+
 # TODO:
-# Zwei Winkel addieren
-    # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
-    # Den Winkel oben muss ich noch überlegen
-    # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
-    # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
 # pi/2 auf einen Winkel addieren
 # Ergebnisse entsprechend Faktor verlängern
 # Ergebnisse durch Translatoren verbinden
