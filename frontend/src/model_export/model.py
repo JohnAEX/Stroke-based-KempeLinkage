@@ -1,4 +1,5 @@
 from numpy import full
+from sympy import li
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -16,8 +17,6 @@ class Model:
         a, b, c, d = self.__make_rhombus_nodes()
         self.__make_rhombus_linkages(a,b,c,d)
         self.__add_initial_counterparallelograms()
-             
-
 
     def __pythagoras2(self, a: float, b: float) -> float:
         return math.sqrt(a**2 + b**2)
@@ -69,8 +68,6 @@ class Model:
             if geom.has_tag("linkage") and geom.has_tag("short") and geom.has_tag(str(factor)) and geom.has_tag(angle):
                 return geom
         
-
-
     def __append_multiplicator(self, level: int, angle: str):
         new_length = self.__scale_factor/2**(level-1)
         short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
@@ -150,7 +147,8 @@ class Model:
         self.__all_geometry.append(half_node)
         self.__all_geometry.append(full_node)
         self.__all_geometry.append(Linkage(["helper", "additor"], self.__origin, half_node, long_edge.get_length()/2))
-        self.__all_geometry.append(Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4))
+        result_handle = Linkage(["additor"], self.__origin, full_node, long_edge.get_length()/4)
+        self.__all_geometry.append(result_handle)
         outer_multiplicator_node = Node(["additor", "helper"], True, (long_edge.get_length(), 0))
         self.__all_geometry.append(outer_multiplicator_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], self.__origin, outer_multiplicator_node, long_edge.get_length(), True))
@@ -170,6 +168,8 @@ class Model:
         self.__all_geometry.append(Linkage(["additor", "helper"], lower_additor_node, half_node, long_edge.get_length()))
         additor_helper_node = self.__place_helper_node_for_multiplicator(["additor", "helper"], ["additor", "helper"], long_edge.get_length()/4, half_node, lower_additor_node)
         self.__all_geometry.append(Linkage(["additor", "helper"], new_node, additor_helper_node, long_edge.get_length()/2))
+        return result_handle
+
 
     def __get_short_edge_long_edge(self, linkage_a: Linkage, linkage_b: Linkage) -> tuple[Linkage, Linkage]:
         outer_node_a = self.__get_outer_node(linkage_a)
@@ -186,7 +186,6 @@ class Model:
         else:
             return math.pi + (math.pi - math.acos(x/hyp))
         
-
     def __get_x_y_for_angle_and_length(self, angle: float, length: float) -> tuple[float, float]:
         y = length * math.sin(angle)
         x = length * math.cos(angle)
@@ -208,12 +207,19 @@ class Model:
     def __get_outer_node(self, linkage: Linkage) -> Node:
         return linkage.get_nodes()[0] if linkage.get_nodes()[0] != self.__origin else linkage.get_nodes()[1]
 
+    def add_half_pi_to_linkage_angle(self, linkage: Linkage) -> None:
+        outer_node = self.__get_outer_node(linkage)
+        new_angle = self.__get_angle_of_node(outer_node) + math.pi/2
+        x,y = self.__get_x_y_for_angle_and_length(new_angle, linkage.get_length())
+        new_node = Node(["pi/2"], False, (x,y))
+        self.__all_geometry.append(new_node)
+        new_handle = Linkage(["pi/2"], self.__origin, new_node, linkage.get_length())
+        self.__all_geometry.append(new_handle)
+        self.__all_geometry.append(Linkage(["pi/2", "helper"], outer_node, new_node, self.__pythagoras2(linkage.get_length(), linkage.get_length())))
+        return new_handle
+        
+
 # TODO:
-# Zwei Winkel addieren
-    # Unteren Punkt des großen Parallelograms berechnen (der Winkel unten ist die Summe von beiden /2 - der kleinere Winkel)
-    # Den Winkel oben muss ich noch überlegen
-    # Dann den alpha+beta/2 einzeichnen (einfach, wir kennen ja den Winkel) länge ist die kurze Seite des großen Parallelograms
-    # Dann fehlt für das kleinere Parallelogramm nur noch ein Balken. Der ergibt sich wie beim Multiplikator durch 1/4 * Vektor Richtung unten
 # pi/2 auf einen Winkel addieren
 # Ergebnisse entsprechend Faktor verlängern
 # Ergebnisse durch Translatoren verbinden

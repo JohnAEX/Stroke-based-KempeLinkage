@@ -15,6 +15,7 @@ class function_exporter:
         link_a = model.create_and_get_multiplicator_of_factor(2, "alpha")
         link_b = model.create_and_get_multiplicator_of_factor(3, "beta")
         add = model.add_angles(link_a, link_b)
+        pi2 = model.add_half_pi_to_linkage_angle(add)
         model.sanity_check()
         model.draw_linkage()
         #for key, value in self.__function.as_coefficients_dict().items():
