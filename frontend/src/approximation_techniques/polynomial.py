@@ -2,7 +2,7 @@ from approximation_techniques.base_approximation import BaseApproximation
 from scipy.optimize import curve_fit as cf
 from types import FunctionType
 import sympy as sy
-from sympy.simplify.fu import TR5, TR8, TR0
+from sympy.simplify.fu import TR5, TR8, TR0, TR7
 
 class PolynomialApproximation(BaseApproximation):
 
@@ -13,9 +13,6 @@ class PolynomialApproximation(BaseApproximation):
 
         return f_func
 
-    def foo(self, x, a):
-        return x*a
-
     def set_parameters_and_approximate(self, parameter_map, xdata, ydata):
         n = int(parameter_map["N"]) + 1
         self.__func = self.get_function(n)
@@ -25,7 +22,6 @@ class PolynomialApproximation(BaseApproximation):
     def get_approximated_function(self):
         n = len(self.__popt)
         func =  f'def approx(x):\n  return {" + ".join([str(self.__popt[i]) + ("*x**") + str(i) for i in range(n)])}'
-        print(func)
         f_code = compile(func, "<float>", "exec")
         f_func = FunctionType(f_code.co_consts[0], globals(), "approx")
         return FunctionType(f_code.co_consts[0], globals(), "get_approx_value")
@@ -39,5 +35,4 @@ class PolynomialApproximation(BaseApproximation):
         expr = expr.subs(x, (r/2)*sy.cos(alpha) + (r/2)*sy.cos(beta))
         expr = expr.subs(y, (r/2)*sy.sin(alpha) + (r/2)*sy.sin(beta))
         result = (TR5(TR8(TR0(expr))).rewrite(sy.cos))
-
-        sy.pprint(result)
+        return result

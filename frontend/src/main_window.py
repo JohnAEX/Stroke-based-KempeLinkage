@@ -1,6 +1,14 @@
+
 import PySimpleGUI as sg
 import math
+
+from approximation_techniques.polynomial import PolynomialApproximation
+from model_export.converter import convert_geometry_to_mechanism
+
+from model_export.model import Model
+
 from window_layout import WindowLayout
+from model_export.handler import function_exporter
 import sympy as sy
 from sympy.simplify.fu import TR5, TR8, TR0
 
@@ -44,6 +52,16 @@ def clear():
     window["CANVAS"].tk_canvas.delete('all')
     init_canvas()
 
+    # skip ui
+approx = PolynomialApproximation()
+approx.set_parameters_and_approximate({"N": 3}, [1,2,3,4,5,6,7], [4,8,10,12,14,15,16])
+syfunc = approx.get_sympy_expression()
+exporter = function_exporter(syfunc)
+# example of a conversion of the basic model
+test_model = Model()
+print(convert_geometry_to_mechanism(test_model))
+quit()
+
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
 init_canvas()
@@ -64,6 +82,7 @@ while True:
         layout.set_export_button(window, False)
     if event == "EXPORT":
         syfunc = approx.get_sympy_expression()
+        exporter = function_exporter(syfunc)
     if event == "CLEAR":
         clear()
 
