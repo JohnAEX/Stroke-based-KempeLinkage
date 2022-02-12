@@ -5,26 +5,40 @@ class function_exporter:
 
     def __init__(self, function: sy.core.add.Add) -> None:
         self.__function = function
-        #self.__prepare_function()
-        self.draw_saxena()
+        self.__prepare_function()
+        #self.draw_saxena()
     
     def __prepare_function(self) -> None:
-        alpha,beta,r,x,y = sy.symbols('a b r x y')
+        r = sy.symbols('r')
         self.__function = self.__function.subs(r, 1)
         print(self.__function)
+        linkages = []
         model = Model()
-        link_a = model.create_and_get_multiplicator_of_factor(2, "alpha")
-        link_b = model.create_and_get_multiplicator_of_factor(3, "beta")
-        add = model.add_angles(link_a, link_b)
+        for key, value in self.__function.as_coefficients_dict().items():
+            if key == 1:
+                continue
+            linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
+        model.add_up_linkages_to_final_result(linkages)
         model.sanity_check()
         model.draw_linkage()
-        #for key, value in self.__function.as_coefficients_dict().items():
-            #print(key.args, value)
-            #for arg in key.args:
-                #print(arg.as_coefficients_dict().items())
-            #print(dir(key))
-        print(max)
-        #sy.pprint(self.__function)
+
+    def __get_linkage_for_component(self, component, model: Model):
+        sub_components = component.args[0].as_coefficients_dict().items()
+        alpha, beta = sy.symbols('alpha beta')
+        alpha_linkage = None
+        beta_linkage = None
+        add_pi = 0
+        for angle, factor in sub_components:
+            if angle == alpha:
+                alpha_linkage = model.create_and_get_multiplicator_of_factor(factor, "alpha")
+            elif angle == beta:
+                beta_linkage = model.create_and_get_multiplicator_of_factor(factor, "beta")
+            else:
+                add_pi = factor
+        result_linkage = alpha_linkage if beta_linkage is None else beta_linkage
+        result_linkage = model.add_angles(alpha_linkage, beta_linkage) if ((alpha_linkage is not None) and (beta_linkage is not None)) else result_linkage
+        return model.add_or_substract_half_pi_to_linkage_angle(result_linkage, True if add_pi > 0 else False) if add_pi != 0 else result_linkage
+
 
     def draw_saxena(self) -> None:
         linkages = []

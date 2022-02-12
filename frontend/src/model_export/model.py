@@ -14,6 +14,7 @@ class Model:
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
         self.__maximum_multiplicator= {"alpha": 1, "beta": 1}
+        self.__minimum_multiplicator= {"alpha": 0, "beta": 0}
         a, b, c, d = self.__make_rhombus_nodes()
         self.__make_rhombus_linkages(a,b,c,d)
         self.__add_initial_counterparallelograms()
@@ -59,7 +60,7 @@ class Model:
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
             self.__all_geometry.extend([outer, lower])
 
-    def create_and_get_multiplicator_of_factor(self, factor: int, angle: str):
+    def create_and_get_multiplicator_of_factor(self, factor: int, angle: str) -> Linkage:
         for i in range(self.__maximum_multiplicator[angle] + 1, factor + 1):
             self.__append_multiplicator(i, angle)
             self.__maximum_multiplicator[angle] = i

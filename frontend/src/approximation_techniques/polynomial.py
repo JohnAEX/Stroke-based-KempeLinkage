@@ -27,7 +27,7 @@ class PolynomialApproximation(BaseApproximation):
         return FunctionType(f_code.co_consts[0], globals(), "get_approx_value")
 
     def get_sympy_expression(self):
-        alpha,beta,r,x,y = sy.symbols('a b r x y')
+        alpha,beta,r,x,y = sy.symbols('alpha beta r x y')
         expr = 0
         for i in range(len(self.__popt)):
             expr += self.__popt[i]*x**i
