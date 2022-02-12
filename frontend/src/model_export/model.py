@@ -123,6 +123,8 @@ class Model:
                 color = "green"
             elif geom.has_tag("beta"):
                 color = "blue"
+            elif geom.has_tag("combination"):
+                color = "purple"
             elif geom.has_tag("helper"):
                 color = "grey"
             if geom.has_tag("linkage"):
@@ -131,7 +133,10 @@ class Model:
                 plt.plot([x1, x2], [y1, y2], color = color)
             else:
                 x,y = geom.get_xy()
-                plt.plot(x, y, marker='o', color=color)
+                if geom.has_tag("final"):
+                    plt.plot(x, y, marker='o', color="yellow", markersize=10)
+                else:
+                    plt.plot(x, y, marker='o', color=color)
         plt.show()
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> Linkage:
@@ -244,11 +249,11 @@ class Model:
         for linkage in linkages[1:]:
             inner_b, outer_b = self.__get_inner_and_outer_node(linkage, inner_node)
             new_node = Node(["combination"], False, (outer_a.get_x() + (outer_b.get_x() - inner_b.get_x()), outer_a.get_y() + (outer_b.get_y() - inner_b.get_y())))
-            self.__all_geometry.append(new_node)
             new_linkage = Linkage(["combination"], outer_a, new_node, linkage.get_length())
             new_linkages.append(new_linkage)
             self.__all_geometry.append(new_linkage)
             self.__all_geometry.append(Linkage(["combination"], outer_b, new_node, linkages[0].get_length()))
+            self.__all_geometry.append(new_node)
             final_node = new_node
         if len(new_linkages) > 1:
            return self.add_up_linkages_to_final_result(new_linkages, outer_a)
