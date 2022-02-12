@@ -8,3 +8,6 @@ class Geometry:
 
     def append_tag(self, tag: str) -> None:
         self.__tags.append(tag)
+
+    def get_tags(self) -> list[str]:
+        return self.__tags

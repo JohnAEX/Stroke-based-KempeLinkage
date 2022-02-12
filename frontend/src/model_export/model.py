@@ -1,5 +1,5 @@
 from numpy import full
-from sympy import li
+from sympy import li, true
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
@@ -9,7 +9,7 @@ import math
 
 class Model:
 
-    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/12*math.pi, "beta": 1/3*math.pi}) -> None:
+    def __init__(self, scale_factor=256, initial_angles={"alpha": 1/8*math.pi, "beta": 3/8*math.pi}) -> None:
         self.__scale_factor = scale_factor
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
@@ -102,15 +102,19 @@ class Model:
                     long = geom
         return short, long
 
-    def sanity_check(self, threshold = 1) -> bool:
+    def sanity_check(self, threshold = 1):
+        consitant = True
         for geom in self.__all_geometry:
             if geom.has_tag("linkage"):
                 dist = self.__pythagoras2(geom.get_nodes()[0].get_x()-geom.get_nodes()[1].get_x(), geom.get_nodes()[0].get_y()-geom.get_nodes()[1].get_y())
                 if abs(dist - geom.get_length()) > threshold and geom.get_nodes()[0] in self.__all_geometry and geom.get_nodes()[1] in self.__all_geometry:
-                    print("The model is inconsistant")
-                    return False
-        print("The model is consistant")
-        return True
+                    consitant = False
+                    print("Inconsistancy detected")
+                    print(f"A linkage of length {geom.get_length()} is impossible between nodes {geom.get_nodes()[0].get_xy()} and {geom.get_nodes()[1].get_xy()}")
+                    print(f"Tags are: Linkage {geom.get_tags()}, Node 1 {geom.get_nodes()[0].get_tags()}, Node 2 {geom.get_nodes()[1].get_tags()}")
+
+        if consitant:
+            print("The model is consistant")
 
     def draw_linkage(self, geometry: list[Geometry] = None) -> None:
         if geometry is None:
@@ -214,9 +218,9 @@ class Model:
     def __get_outer_node(self, linkage: Linkage) -> Node:
         return linkage.get_nodes()[0] if linkage.get_nodes()[0] != self.__origin else linkage.get_nodes()[1]
 
-    def add_half_pi_to_linkage_angle(self, linkage: Linkage) -> Linkage:
+    def add_or_substract_half_pi_to_linkage_angle(self, linkage: Linkage, add: bool = True) -> Linkage:
         outer_node = self.__get_outer_node(linkage)
-        new_angle = self.__get_angle_of_node(outer_node) + math.pi/2
+        new_angle = self.__get_angle_of_node(outer_node) + (math.pi/2 * (1 if add else -1))
         x,y = self.__get_x_y_for_angle_and_length(new_angle, linkage.get_length())
         new_node = Node(["pi/2"], False, (x,y))
         self.__all_geometry.append(new_node)
@@ -234,7 +238,7 @@ class Model:
         y = outer_node.get_y() * length / linkage.get_length()
         new_node = Node(["length_change"], False, (x,y))
         self.__all_geometry.append(new_node)
-        result_linkage = Linkage(["length_change"], self.__origin, new_node, length)
+        result_linkage = Linkage(["length_change"], self.__origin, new_node, abs(length))
         self.__all_geometry.append(result_linkage)
         self.__all_geometry.append(Linkage(["length_change"], outer_node, new_node, abs(length - linkage.get_length())))
         return result_linkage
@@ -267,11 +271,6 @@ class Model:
             return linkage.get_nodes()[0], linkage.get_nodes()[1]
         else: 
             return linkage.get_nodes()[1], linkage.get_nodes()[0]
-
-# TODO:
-# pi/2 auf einen Winkel addieren
-# Ergebnisse entsprechend Faktor verlängern
-# Ergebnisse durch Translatoren verbinden
 
     def get_geometry(self):
         return self.__all_geometry
