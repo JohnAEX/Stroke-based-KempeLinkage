@@ -14,11 +14,12 @@ class function_exporter:
         print(self.__function)
         linkages = []
         model = Model()
+        model.create_and_get_multiplicator_of_factor(0, "alpha")
         for key, value in self.__function.as_coefficients_dict().items():
             if key == 1:
                 continue
-            linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
-        model.add_up_linkages_to_final_result(linkages)
+            #linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
+        #model.add_up_linkages_to_final_result(linkages)
         model.sanity_check()
         model.draw_linkage()
 

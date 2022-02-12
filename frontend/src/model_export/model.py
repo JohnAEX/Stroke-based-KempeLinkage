@@ -14,7 +14,7 @@ class Model:
         self.__initial_angles = initial_angles
         self.__all_geometry: list(Geometry) = []
         self.__maximum_multiplicator= {"alpha": 1, "beta": 1}
-        self.__minimum_multiplicator= {"alpha": 0, "beta": 0}
+        self.__minimum_multiplicator= {"alpha": 1, "beta": 1}
         a, b, c, d = self.__make_rhombus_nodes()
         self.__make_rhombus_linkages(a,b,c,d)
         self.__add_initial_counterparallelograms()
@@ -36,12 +36,19 @@ class Model:
         return a,b,c,d
 
     def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
-        # I bet, this could be simplified tremendously
+        x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
+        return 2 * short_edge_length - short_edge_length * math.sin(x_angle), -short_edge_length * math.sin(y_angle)
+
+    def __calculate_position_of_upper_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
+        x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
+        return short_edge_length - 2 * short_edge_length * math.sin(x_angle), 2 * short_edge_length * math.sin(y_angle)
+
+    def __calculate_other_multiplicator_node_angles(self, angle, short_edge_length) -> tuple[float, float]:
         length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
         upper_angle = math.acos((length_a**2 + short_edge_length**2 - (2*short_edge_length)**2)/(2*length_a*short_edge_length))
-        x_angle = 1/2 * math.pi - (upper_angle - (math.pi - angle - upper_angle) )
-        y_angle = 1/2 * math.pi - x_angle
-        return 2 * short_edge_length - short_edge_length * math.sin(x_angle), -short_edge_length * math.sin(y_angle)
+        y_angle = upper_angle - (math.pi - angle - upper_angle)
+        x_angle = 1/2 * math.pi - y_angle
+        return x_angle, y_angle
 
     def __make_rhombus_linkages(self, a: Node, b: Node, c: Node, d: Node) -> None:
         self.__all_geometry.append(Linkage(["rhombus", "alpha", "1", "short"], a, b, self.__scale_factor))
@@ -60,10 +67,29 @@ class Model:
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
             self.__all_geometry.extend([outer, lower])
 
+    def __add_initial_negative_counterparallelogram(self, angle):
+        outer = Node([angle, "0"], True, (1/2 * self.__scale_factor, 0))
+        self.__all_geometry.append(Linkage([angle, "0"], self.__origin, outer, self.__scale_factor/2, True))
+
+        node = self.__alpha_node if angle == "alpha" else self.__beta_node
+        x,y = self.__calculate_position_of_upper_multiplicator_node(self.__initial_angles[angle], self.__scale_factor/2)
+        upper = Node([angle], False, (x, y))
+        self.__all_geometry.append(Linkage([angle, "1", "long"], node, upper, self.__scale_factor/2))
+        self.__all_geometry.append(Linkage([angle], outer, upper, self.__scale_factor))
+        self.__all_geometry.extend([outer, upper])
+
     def create_and_get_multiplicator_of_factor(self, factor: int, angle: str) -> Linkage:
-        for i in range(self.__maximum_multiplicator[angle] + 1, factor + 1):
-            self.__append_multiplicator(i, angle)
-            self.__maximum_multiplicator[angle] = i
+        if factor > 0:
+            for i in range(self.__maximum_multiplicator[angle] + 1, factor + 1):
+                self.__append_multiplicator(i, angle)
+                self.__maximum_multiplicator[angle] = i
+        else:
+            for i in range(self.__minimum_multiplicator[angle] - 1, factor - 1, -1):
+                if i == 0:
+                    self.__add_initial_negative_counterparallelogram(angle)
+                else:
+                    self.__append_negative_multiplicator(i, angle)
+                self.__minimum_multiplicator[angle] = i
 
         for geom in self.__all_geometry:
             if geom.has_tag("linkage") and geom.has_tag("short") and geom.has_tag(str(factor)) and geom.has_tag(angle):
@@ -82,6 +108,11 @@ class Model:
         self.__all_geometry.append(new_node)
         self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length))
         self.__all_geometry.append(Linkage([angle, str(level), "long"], new_node, helper_node, 2 * new_length))
+
+    def __append_negative_multiplicator(self, level: int, angle: str):
+        new_length = self.__scale_factor/2**(abs(level))
+        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
+        pass
 
     def __place_helper_node_for_multiplicator(self, node_tags, linkage_tags, new_short_length, handle_node, distant_node):
         helper_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
