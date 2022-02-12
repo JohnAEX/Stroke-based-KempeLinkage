@@ -132,7 +132,7 @@ class Model:
                 plt.plot(x, y, marker='o', color=color)
         plt.show()
 
-    def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> None:
+    def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> Linkage:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
         short_outer = self.__get_outer_node(short_edge)
         long_outer = self.__get_outer_node(long_edge)
@@ -207,7 +207,7 @@ class Model:
     def __get_outer_node(self, linkage: Linkage) -> Node:
         return linkage.get_nodes()[0] if linkage.get_nodes()[0] != self.__origin else linkage.get_nodes()[1]
 
-    def add_half_pi_to_linkage_angle(self, linkage: Linkage) -> None:
+    def add_half_pi_to_linkage_angle(self, linkage: Linkage) -> Linkage:
         outer_node = self.__get_outer_node(linkage)
         new_angle = self.__get_angle_of_node(outer_node) + math.pi/2
         x,y = self.__get_x_y_for_angle_and_length(new_angle, linkage.get_length())
@@ -217,6 +217,20 @@ class Model:
         self.__all_geometry.append(new_handle)
         self.__all_geometry.append(Linkage(["pi/2", "helper"], outer_node, new_node, self.__pythagoras2(linkage.get_length(), linkage.get_length())))
         return new_handle
+
+    def lengthen_or_shorten_linkage_to_length(self, linkage: Linkage, length: float) -> Linkage:
+        length = length * self.__scale_factor
+        if linkage.get_length() == length:
+            return linkage
+        outer_node = self.__get_outer_node(linkage)
+        x = outer_node.get_x() * length / linkage.get_length()
+        y = outer_node.get_y() * length / linkage.get_length()
+        new_node = Node(["length_change"], False, (x,y))
+        self.__all_geometry.append(new_node)
+        result_linkage = Linkage(["length_change"], self.__origin, new_node, length)
+        self.__all_geometry.append(result_linkage)
+        self.__all_geometry.append(Linkage(["length_change"], outer_node, new_node, abs(length - linkage.get_length())))
+        return result_linkage
         
 
 # TODO:
