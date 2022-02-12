@@ -112,8 +112,10 @@ class Model:
         print("The model is consistant")
         return True
 
-    def draw_linkage(self) -> None:
-        for geom in self.__all_geometry:
+    def draw_linkage(self, geometry: list[Geometry] = None) -> None:
+        if geometry is None:
+            geometry = self.__all_geometry
+        for geom in geometry:
             color = "black"
             if geom.has_tag("rhombus"):
                 color = "red"
@@ -232,20 +234,31 @@ class Model:
         self.__all_geometry.append(Linkage(["length_change"], outer_node, new_node, abs(length - linkage.get_length())))
         return result_linkage
 
-    def add_up_linkages_to_final_result(self, linkages: list[Linkage], inner_nodes: list[Node] = None) -> Node:
-        if inner_nodes is None:
-            inner_nodes = [self.__origin]
-        new_inner_nodes = []
-        inner_a, outer_a = self.__get_inner_and_outer_node(linkages[0], inner_nodes)
+    def add_up_linkages_to_final_result(self, linkages: list[Linkage], inner_node: Node = None) -> Node:
+        if inner_node is None:
+            inner_node = self.__origin
+    
+        new_linkages = []
+        inner_a, outer_a = self.__get_inner_and_outer_node(linkages[0], inner_node)
+        final_node = None
         for linkage in linkages[1:]:
-            inner_b, outer_b = self.__get_inner_and_outer_node(linkage, inner_nodes)
-            new_node = Node(["combination"], False, (outer_a.get_x() + outer_b.get_x(), outer_a.get_y() + outer_b.get_y()))
+            inner_b, outer_b = self.__get_inner_and_outer_node(linkage, inner_node)
+            new_node = Node(["combination"], False, (outer_a.get_x() + (outer_b.get_x() - inner_b.get_x()), outer_a.get_y() + (outer_b.get_y() - inner_b.get_y())))
             self.__all_geometry.append(new_node)
-            self.__all_geometry.append(Linkage(["combination"], outer_a, new_node, linkage.get_length()))
+            new_linkage = Linkage(["combination"], outer_a, new_node, linkage.get_length())
+            new_linkages.append(new_linkage)
+            self.__all_geometry.append(new_linkage)
             self.__all_geometry.append(Linkage(["combination"], outer_b, new_node, linkages[0].get_length()))
+            final_node = new_node
+        if len(new_linkages) > 1:
+           return self.add_up_linkages_to_final_result(new_linkages, outer_a)
+        else:
+            final_node.append_tag("final")
+            return final_node
+        
 
-    def __get_inner_and_outer_node(self, linkage: Linkage, inner_nodes: list[Node]):
-        if linkage.get_nodes()[0] in inner_nodes:
+    def __get_inner_and_outer_node(self, linkage: Linkage, inner_node: Node):
+        if linkage.get_nodes()[0] == inner_node:
             return linkage.get_nodes()[0], linkage.get_nodes()[1]
         else: 
             return linkage.get_nodes()[1], linkage.get_nodes()[0]
