@@ -231,7 +231,24 @@ class Model:
         self.__all_geometry.append(result_linkage)
         self.__all_geometry.append(Linkage(["length_change"], outer_node, new_node, abs(length - linkage.get_length())))
         return result_linkage
-        
+
+    def add_up_linkages_to_final_result(self, linkages: list[Linkage], inner_nodes: list[Node] = None) -> Node:
+        if inner_nodes is None:
+            inner_nodes = [self.__origin]
+        new_inner_nodes = []
+        inner_a, outer_a = self.__get_inner_and_outer_node(linkages[0], inner_nodes)
+        for linkage in linkages[1:]:
+            inner_b, outer_b = self.__get_inner_and_outer_node(linkage, inner_nodes)
+            new_node = Node(["combination"], False, (outer_a.get_x() + outer_b.get_x(), outer_a.get_y() + outer_b.get_y()))
+            self.__all_geometry.append(new_node)
+            self.__all_geometry.append(Linkage(["combination"], outer_a, new_node, linkage.get_length()))
+            self.__all_geometry.append(Linkage(["combination"], outer_b, new_node, linkages[0].get_length()))
+
+    def __get_inner_and_outer_node(self, linkage: Linkage, inner_nodes: list[Node]):
+        if linkage.get_nodes()[0] in inner_nodes:
+            return linkage.get_nodes()[0], linkage.get_nodes()[1]
+        else: 
+            return linkage.get_nodes()[1], linkage.get_nodes()[0]
 
 # TODO:
 # pi/2 auf einen Winkel addieren
