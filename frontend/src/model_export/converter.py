@@ -29,7 +29,8 @@ def link(node_a, node_b):
         vpoint_a.set_links(vpoint_a.links + (link_name,))
         vpoint_b.set_links(vpoint_b.links + (link_name,))
     else:
-        print("[DEBUG] Nodes already share a common link")
+        #print("[DEBUG] Nodes already share a common link")
+        pass
 
 
 def convert_geometry_to_mechanism(geometry):

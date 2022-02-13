@@ -52,16 +52,6 @@ def clear():
     window["CANVAS"].tk_canvas.delete('all')
     init_canvas()
 
-    # skip ui
-approx = PolynomialApproximation()
-approx.set_parameters_and_approximate({"N": 3}, [1,2,3,4,5,6,7], [4,8,10,12,14,15,16])
-syfunc = approx.get_sympy_expression()
-exporter = function_exporter(syfunc)
-# example of a conversion of the basic model
-test_model = Model()
-print(convert_geometry_to_mechanism(test_model))
-quit()
-
 layout = WindowLayout()
 window = sg.Window(title="Kempe Linkage", layout=layout.get_layout(), margins=(10, 10), finalize=True)
 init_canvas()
@@ -83,6 +73,7 @@ while True:
     if event == "EXPORT":
         syfunc = approx.get_sympy_expression()
         exporter = function_exporter(syfunc)
+        exporter.export_model_to_external()
     if event == "CLEAR":
         clear()
 

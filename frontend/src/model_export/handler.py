@@ -1,27 +1,32 @@
 import sympy as sy
+import matplotlib.pyplot as plt
 from model_export.model import Model
+from model_export.converter import convert_geometry_to_mechanism
 
 class function_exporter:
 
     def __init__(self, function: sy.core.add.Add) -> None:
         self.__function = function
-        self.__prepare_function()
-        #self.draw_saxena()
+        self.__model = self.__build_model()
+
+    def export_model_to_external(self) -> None:
+        self.draw_linkage()
+        print("Please copy the following model string to pyslvs\n\n")
+        print(convert_geometry_to_mechanism(self.__model))
     
-    def __prepare_function(self) -> None:
+    def __build_model(self) -> Model:
         r = sy.symbols('r')
         self.__function = self.__function.subs(r, 1)
         print(self.__function)
         linkages = []
         model = Model()
-        model.create_and_get_multiplicator_of_factor(-1, "alpha")
         for key, value in self.__function.as_coefficients_dict().items():
             if key == 1:
                 continue
-            #linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
-        #model.add_up_linkages_to_final_result(linkages)
+            linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
+        model.add_up_linkages_to_final_result(linkages)
         model.sanity_check()
-        model.draw_linkage()
+        return model
 
     def __get_linkage_for_component(self, component, model: Model):
         sub_components = component.args[0].as_coefficients_dict().items()
@@ -55,3 +60,27 @@ class function_exporter:
         model.sanity_check()
         model.draw_linkage()
     
+    def draw_linkage(self, text: str = None) -> None:
+        for geom in self.__model.get_geometry():
+            color = "black"
+            if geom.has_tag("rhombus"):
+                color = "red"
+            elif geom.has_tag("alpha"):
+                color = "green"
+            elif geom.has_tag("beta"):
+                color = "blue"
+            elif geom.has_tag("combination"):
+                color = "purple"
+            elif geom.has_tag("helper"):
+                color = "grey"
+            if geom.has_tag("linkage"):
+                x1,y1 = geom.get_nodes()[0].get_xy()
+                x2,y2 = geom.get_nodes()[1].get_xy()
+                plt.plot([x1, x2], [y1, y2], color = color)
+            else:
+                x,y = geom.get_xy()
+                if geom.has_tag("final"):
+                    plt.plot(x, y, marker='o', color="yellow", markersize=10)
+                else:
+                    plt.plot(x, y, marker='o', color=color)
+        plt.show()

@@ -1,10 +1,7 @@
-from numpy import full
-from sympy import li, true
 from model_export.geometry import Geometry
 from model_export.linkage import Linkage
 from model_export.node import Node
 from model_export.geometry import Geometry
-import matplotlib.pyplot as plt
 import math
 
 class Model:
@@ -156,33 +153,6 @@ class Model:
 
         if consitant:
             print("The model is consistant")
-
-    def draw_linkage(self, geometry: list[Geometry] = None) -> None:
-        if geometry is None:
-            geometry = self.__all_geometry
-        for geom in geometry:
-            color = "black"
-            if geom.has_tag("rhombus"):
-                color = "red"
-            elif geom.has_tag("alpha"):
-                color = "green"
-            elif geom.has_tag("beta"):
-                color = "blue"
-            elif geom.has_tag("combination"):
-                color = "purple"
-            elif geom.has_tag("helper"):
-                color = "grey"
-            if geom.has_tag("linkage"):
-                x1,y1 = geom.get_nodes()[0].get_xy()
-                x2,y2 = geom.get_nodes()[1].get_xy()
-                plt.plot([x1, x2], [y1, y2], color = color)
-            else:
-                x,y = geom.get_xy()
-                if geom.has_tag("final"):
-                    plt.plot(x, y, marker='o', color="yellow", markersize=10)
-                else:
-                    plt.plot(x, y, marker='o', color=color)
-        plt.show()
 
     def add_angles(self, linkage_a: Linkage, linkage_b: Linkage) -> Linkage:
         short_edge, long_edge = self.__get_short_edge_long_edge(linkage_a, linkage_b)
