@@ -69,13 +69,13 @@ class Model:
 
     def __add_initial_negative_counterparallelogram(self, angle):
         outer = Node([angle, "0"], True, (1/2 * self.__scale_factor, 0))
-        self.__all_geometry.append(Linkage([angle, "0"], self.__origin, outer, self.__scale_factor/2, True))
+        self.__all_geometry.append(Linkage([angle, "0", "short"], self.__origin, outer, self.__scale_factor/2, True))
 
         node = self.__alpha_node if angle == "alpha" else self.__beta_node
         x,y = self.__calculate_position_of_upper_multiplicator_node(self.__initial_angles[angle], self.__scale_factor/2)
         upper = Node([angle], False, (x, y))
-        self.__all_geometry.append(Linkage([angle, "1", "long"], node, upper, self.__scale_factor/2))
-        self.__all_geometry.append(Linkage([angle], outer, upper, self.__scale_factor))
+        self.__all_geometry.append(Linkage([angle, "0", "long"], node, upper, self.__scale_factor/2))
+        self.__all_geometry.append(Linkage([angle, "0"], outer, upper, self.__scale_factor))
         self.__all_geometry.extend([outer, upper])
 
     def create_and_get_multiplicator_of_factor(self, factor: int, angle: str) -> Linkage:
@@ -97,7 +97,7 @@ class Model:
         
     def __append_multiplicator(self, level: int, angle: str):
         new_length = self.__scale_factor/2**(level-1)
-        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
+        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level-1, angle)
         handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
         distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
         helper_node = self.__place_helper_node_for_multiplicator([angle], [angle, str(level-1), "helper"], new_length, handle_node, distant_node)
@@ -111,8 +111,17 @@ class Model:
 
     def __append_negative_multiplicator(self, level: int, angle: str):
         new_length = self.__scale_factor/2**(abs(level))
-        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level, angle)
-        pass
+        short, long = self.__get_short_and_long_linkage_of_previous_mulitplicator(level+1, angle)
+        handle_node = short.get_nodes()[0] if short.get_nodes()[0] in long.get_nodes() else short.get_nodes()[1]
+        distant_node = long.get_nodes()[0] if long.get_nodes()[1] == handle_node else long.get_nodes()[1]
+        helper_node = self.__place_helper_node_for_multiplicator([angle], [angle, str(level-1), "helper"], new_length / 2, handle_node, distant_node)
+        new_angle = level * self.__initial_angles[angle]
+        new_x = math.cos(new_angle) * new_length / 2
+        new_y = math.sin(new_angle) * new_length / 2
+        new_node = Node([angle, str(level)], False, (new_x, new_y))
+        self.__all_geometry.append(new_node)
+        self.__all_geometry.append(Linkage([angle, str(level), "short"], self.__origin, new_node, new_length / 2))
+        self.__all_geometry.append(Linkage([angle, str(level), "long"], new_node, helper_node, new_length))
 
     def __place_helper_node_for_multiplicator(self, node_tags, linkage_tags, new_short_length, handle_node, distant_node):
         helper_x = handle_node.get_x() + (distant_node.get_x() - handle_node.get_x()) / 4
@@ -127,7 +136,7 @@ class Model:
         short = None
         long = None
         for geom in self.__all_geometry:
-            if geom.has_tag(angle) and geom.has_tag(str(level-1)):
+            if geom.has_tag(angle) and geom.has_tag(str(level)):
                 if geom.has_tag("short"):
                     short = geom
                 if geom.has_tag("long"):

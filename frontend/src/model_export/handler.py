@@ -14,7 +14,7 @@ class function_exporter:
         print(self.__function)
         linkages = []
         model = Model()
-        model.create_and_get_multiplicator_of_factor(0, "alpha")
+        model.create_and_get_multiplicator_of_factor(-1, "alpha")
         for key, value in self.__function.as_coefficients_dict().items():
             if key == 1:
                 continue
