@@ -1,4 +1,5 @@
 import sympy as sy
+from sympy.solvers import solve
 import matplotlib.pyplot as plt
 from model_export.model import Model
 from model_export.converter import convert_geometry_to_mechanism
@@ -18,8 +19,10 @@ class function_exporter:
         r = sy.symbols('r')
         self.__function = self.__function.subs(r, 1)
         print(self.__function)
+        initial_a, initial_b = self.__get_initial_alpha_beta()
+        print(f"initial alpha is {initial_a} and initial beta is {initial_b}")
         linkages = []
-        model = Model()
+        model = Model(initial_angles={"alpha": initial_a, "beta": initial_b})
         for key, value in self.__function.as_coefficients_dict().items():
             if key == 1:
                 continue
@@ -27,6 +30,23 @@ class function_exporter:
         model.add_up_linkages_to_final_result(linkages)
         model.sanity_check()
         return model
+
+    def __get_initial_alpha_beta(self, a = sy.pi/8):
+        alpha, beta = sy.symbols('alpha beta')
+        solve_func = 0
+        for key, value in self.__function.as_coefficients_dict().items():
+            if key == 1:
+                continue
+            solve_func = solve_func + value * key
+
+        solve_func = solve_func.simplify()
+        print(solve_func)
+
+        res = solve(solve_func, beta, dict=True)
+        b = res[0][beta].subs(alpha, a)
+
+        return a.evalf(), b.evalf()
+
 
     def __get_linkage_for_component(self, component, model: Model):
         sub_components = component.args[0].as_coefficients_dict().items()
