@@ -34,16 +34,16 @@ class Model:
 
     def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        return 2 * short_edge_length - short_edge_length * math.sin(x_angle), -short_edge_length * math.sin(y_angle)
+        return (2 * short_edge_length - short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), -short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
 
     def __calculate_position_of_upper_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        return short_edge_length - 2 * short_edge_length * math.sin(x_angle), 2 * short_edge_length * math.sin(y_angle)
+        return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)) (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), 2 * short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
 
     def __calculate_other_multiplicator_node_angles(self, angle, short_edge_length) -> tuple[float, float]:
         length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
         upper_angle = math.acos((length_a**2 + short_edge_length**2 - (2*short_edge_length)**2)/(2*length_a*short_edge_length))
-        y_angle = upper_angle - (math.pi - angle - upper_angle)
+        y_angle = upper_angle - (math.pi - abs(angle) - upper_angle)
         x_angle = 1/2 * math.pi - y_angle
         return x_angle, y_angle
 
