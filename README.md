@@ -39,7 +39,8 @@ The correct choice for these can be checked by looking the green & blue colored 
 This chapter will list the currently known limitations of this program
 * As of now the program is **work-in-progress** and might not function as intended
 * There is only one approximation technique currently implemented (Polynomial approximation to the degree of N)
-* A valid approximation can only be reached when choosing a degree of less than 3 as the code currently doesn't handle squares of cos
+* A valid approximation can only be reached when choosing a degree of equal or less than 3 as the code currently doesn't handle squares of cos
+* The initial configuration of alpha and beta must be within the first quadrant, otherwise inconsistencies may occure. This does not apply for any outputs of the linkage, only for the initial angles within the rhombus. There surely is a simple mathematical error somewhere, but we were not able to find it.
 * Pyslvs is a qt-ui with underlying usage of a reduced solvespace-api, a lot of functions are unavailable and the physics simulation is bare bones
 * Without switching to a different visualization / simulation tool the complete path of the output point will not be traced
 * The output area (2*R) is not considered in pyslvs so we will most likely see the linkage breaking at some point
