@@ -34,18 +34,16 @@ class Model:
 
     def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        #return (2 * short_edge_length - short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), -short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
         return (2 * short_edge_length - short_edge_length * math.sin(x_angle)), -short_edge_length * math.sin(y_angle)
 
     def __calculate_position_of_upper_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        #return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), 2 * short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
         return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)), 2 * short_edge_length * math.sin(y_angle)
 
     def __calculate_other_multiplicator_node_angles(self, angle, short_edge_length) -> tuple[float, float]:
         length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
         upper_angle = math.acos((length_a**2 + short_edge_length**2 - (2*short_edge_length)**2)/(2*length_a*short_edge_length))
-        y_angle = upper_angle - (math.pi - abs(angle) - upper_angle)
+        y_angle = upper_angle - (math.pi - angle - upper_angle)
         x_angle = 1/2 * math.pi - y_angle
         return x_angle, y_angle
 
@@ -60,7 +58,9 @@ class Model:
         self.__all_geometry.append(Linkage(["base"], self.__origin, outer, self.__scale_factor*2, True))
 
         for (angle, rhombus_node) in [("alpha", self.__alpha_node), ("beta", self.__beta_node)]:
-            x,y = self.__calculate_position_of_lower_multiplicator_node(self.__initial_angles[angle], self.__scale_factor)
+            x,y = self.__calculate_position_of_lower_multiplicator_node(abs(self.__initial_angles[angle]), self.__scale_factor)
+            x = x * (1 if self.__initial_angles[angle] > -math.pi/2 and self.__initial_angles[angle] < math.pi/2 else -1)
+            y = y * (1 if self.__initial_angles[angle] > 0 else -1)
             lower = Node([angle], False, (x, y))
             self.__all_geometry.append(Linkage([angle, "1", "long"], rhombus_node, lower, self.__scale_factor*2))
             self.__all_geometry.append(Linkage([angle], outer, lower, self.__scale_factor))
@@ -71,7 +71,9 @@ class Model:
         self.__all_geometry.append(Linkage([angle, "0", "short"], self.__origin, outer, self.__scale_factor/2, True))
 
         node = self.__alpha_node if angle == "alpha" else self.__beta_node
-        x,y = self.__calculate_position_of_upper_multiplicator_node(self.__initial_angles[angle], self.__scale_factor/2)
+        x,y = self.__calculate_position_of_upper_multiplicator_node(abs(self.__initial_angles[angle]), self.__scale_factor/2)
+        x = x * (1 if self.__initial_angles[angle] > -math.pi/2 and self.__initial_angles[angle] < math.pi/2 else -1)
+        y = y * (1 if self.__initial_angles[angle] > 0 else -1)
         upper = Node([angle], False, (x, y))
         self.__all_geometry.append(Linkage([angle, "0", "long"], node, upper, self.__scale_factor/2))
         self.__all_geometry.append(Linkage([angle, "0"], outer, upper, self.__scale_factor))
