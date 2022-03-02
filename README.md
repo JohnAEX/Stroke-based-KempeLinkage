@@ -22,7 +22,8 @@ Pressing **Approximate** will display you the calculated approximation right in 
 ![Unable to load gif](https://media0.giphy.com/media/DkgjjF0q90zIMrQlHC/giphy.gif) <br/> <br/>
 
 If you are happy with the approximation you can export the result via a press of the **Export** button.
-This will display an image of the calculated linkage system and print out the _mechanism expression_ that can then be imported into [pyslvs](https://github.com/KmolYuan/Pyslvs-UI) for simulation. 
+You will be prompted a dialogue on the **CLI** to configure the initial values of alpha and beta. We can comptutaionally infer a valid configuration, but with the libraries used, this takes forever except for linear function. If you are only interested in the linkage system and do not want it to be correctly restricted by a peaucellier linkage, you can enter arbitrary values within the first quadrant. If you entered both values (or left them empty) the export starts.
+It will display an image of the calculated linkage system and print out the _mechanism expression_ that can then be imported into [pyslvs](https://github.com/KmolYuan/Pyslvs-UI) for simulation. 
 
 ![Unable to load gif](https://media1.giphy.com/media/43QvhD7KjjUSh5Lu4O/giphy.gif) <br/> <br/>
 
