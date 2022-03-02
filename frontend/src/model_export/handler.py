@@ -27,7 +27,8 @@ class function_exporter:
             if key == 1:
                 continue
             linkages.append(model.lengthen_or_shorten_linkage_to_length(self.__get_linkage_for_component(key, model), value))
-        model.add_up_linkages_to_final_result(linkages)
+        final_node = model.add_up_linkages_to_final_result(linkages)
+        model.add_peaucellier_linkage(final_node)
         model.sanity_check()
         return model
 

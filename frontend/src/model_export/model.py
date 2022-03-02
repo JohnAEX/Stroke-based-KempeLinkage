@@ -283,5 +283,27 @@ class Model:
         else: 
             return linkage.get_nodes()[1], linkage.get_nodes()[0]
 
+    def add_peaucellier_linkage(self, node: Node):
+        x,y = node.get_xy()
+        inner_distance = math.sqrt((self.__scale_factor * 2)**2/2)
+        upper_node = Node(["peaucellier"], False, (x-inner_distance, y+inner_distance))
+        lower_node = Node(["peaucellier"], False, (x-inner_distance, y-inner_distance))
+        left_node = Node(["peaucellier"], False, (x-2*inner_distance, y))
+        inner_anchor_node = Node(["peaucellier"], True, (x-2*inner_distance-2*self.__scale_factor, y))
+        outer_anchor_node = Node(["peaucellier"], True, (x-2*inner_distance-4*self.__scale_factor, y))
+        outer_linkage_length = math.sqrt(inner_distance**2 + (4*self.__scale_factor+inner_distance)**2)
+        self.__all_geometry.append(upper_node)
+        self.__all_geometry.append(lower_node)
+        self.__all_geometry.append(left_node)
+        self.__all_geometry.append(inner_anchor_node)
+        self.__all_geometry.append(outer_anchor_node)
+        self.__all_geometry.append(Linkage(["peaucellier"], node, upper_node, 2*self.__scale_factor))
+        self.__all_geometry.append(Linkage(["peaucellier"], node, lower_node, 2*self.__scale_factor))
+        self.__all_geometry.append(Linkage(["peaucellier"], left_node, upper_node, 2*self.__scale_factor))
+        self.__all_geometry.append(Linkage(["peaucellier"], left_node, lower_node, 2*self.__scale_factor))
+        self.__all_geometry.append(Linkage(["peaucellier"], left_node, inner_anchor_node, 2*self.__scale_factor))
+        self.__all_geometry.append(Linkage(["peaucellier"], outer_anchor_node, upper_node, outer_linkage_length))
+        self.__all_geometry.append(Linkage(["peaucellier"], outer_anchor_node, lower_node, outer_linkage_length))
+
     def get_geometry(self):
         return self.__all_geometry
