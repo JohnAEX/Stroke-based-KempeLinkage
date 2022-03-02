@@ -41,12 +41,18 @@ class function_exporter:
             solve_func = solve_func + value * key
 
         solve_func = solve_func.simplify()
-        print(solve_func)
+        print(f"We need an initial configuration for alpha and beta that solves the following expression to zero: \n{solve_func}\n\n" +
+        "We can try to computationally solve that, but this may take a while. If you wish, provide two angles (in radians) now or press enter to skip and infer them computationally.\n")
 
-        res = solve(solve_func, beta, dict=True)
-        b = res[0][beta].subs(alpha, a)
+        alph = input("alpha: ")
+        bet = input("beta: ")
 
-        return a.evalf(), b.evalf()
+        if alph != "" and bet != "":
+            return float(alph), float(bet)
+        else:
+            res = solve(solve_func, beta, dict=True)
+            b = res[0][beta].subs(alpha, a)
+            return a.evalf(), b.evalf()
 
 
     def __get_linkage_for_component(self, component, model: Model):

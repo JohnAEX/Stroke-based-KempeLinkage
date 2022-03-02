@@ -34,11 +34,13 @@ class Model:
 
     def __calculate_position_of_lower_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        return (2 * short_edge_length - short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), -short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
+        #return (2 * short_edge_length - short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), -short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
+        return (2 * short_edge_length - short_edge_length * math.sin(x_angle)), -short_edge_length * math.sin(y_angle)
 
     def __calculate_position_of_upper_multiplicator_node(self, angle, short_edge_length) -> tuple[float, float]:
         x_angle, y_angle = self.__calculate_other_multiplicator_node_angles(angle, short_edge_length)
-        return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)) (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), 2 * short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
+        #return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)) * (1 if angle > -math.pi/2 and angle < math.pi/2 else -1), 2 * short_edge_length * math.sin(y_angle) * (1 if angle > 0 else -1)
+        return (short_edge_length - 2 * short_edge_length * math.sin(x_angle)), 2 * short_edge_length * math.sin(y_angle)
 
     def __calculate_other_multiplicator_node_angles(self, angle, short_edge_length) -> tuple[float, float]:
         length_a = math.sqrt(5*short_edge_length**2-4*short_edge_length**2*math.cos(angle))
