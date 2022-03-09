@@ -48,6 +48,7 @@ This chapter will list the currently known limitations of this program
 * ... probably a lot more we are not even thinking of at the moment
 
 ## Pre-view
-Here is a sneaky pre-view of what the tracing might look like at the moment. We hope to improve this within the next two weeks.
+Here is what a partially linear simulation might look like.
+Keep in mind this is still only partially correct.
 <br/> <br/>
-![Unable to load gif](https://media0.giphy.com/media/Ft2S5KixBmbRtkJiFu/giphy.gif) <br/>
+![Unable to load gif](https://media1.giphy.com/media/UOakG4pqyalqeR8QvF/giphy.gif) <br/>
